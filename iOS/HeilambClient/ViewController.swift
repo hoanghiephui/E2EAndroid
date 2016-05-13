@@ -258,8 +258,7 @@ class ViewController: UIViewController, LGChatControllerDelegate {
             
             dispatch_async(dispatch_get_main_queue()) {
                 let stringValue = NSString(data: payload, encoding: NSUTF8StringEncoding)! as String
-                
-                if let decryptedString = self.heimdall.decrypt(stringValue) {
+                if let decryptedString = self.heimdall.decrypt(stringValue, urlEncoded: false) {
                     if let dict = self.convertStringToDictionary(decryptedString) {
                         
                         let user_id = dict["user_id"] as! String
@@ -272,6 +271,9 @@ class ViewController: UIViewController, LGChatControllerDelegate {
                         let incomingMessage = LGChatMessage(content: content as String, sentBy: sentBy)
                         self.chatController.appendMessage(incomingMessage)
                     }
+                } else {
+                    let incomingMessage = LGChatMessage(content: "Received an encrypted message:\n\n\(stringValue)", sentBy: .Opponent)
+                    self.chatController.appendMessage(incomingMessage)
                 }
             }
         } )
