@@ -1,0 +1,11 @@
+platform :ios, "8.0"
+use_frameworks!
+
+target 'HeilambClient' do
+
+pod 'Heimdall', '~> 1.0.0'
+pod 'AWSLambda'
+pod 'AWSCognito'
+pod 'AWSIoT'
+
+end
