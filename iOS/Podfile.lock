@@ -1,0 +1,24 @@
+PODS:
+  - AWSCognito (2.4.1):
+    - AWSCore (= 2.4.1)
+  - AWSCore (2.4.1)
+  - AWSIoT (2.4.1):
+    - AWSCore (= 2.4.1)
+  - AWSLambda (2.4.1):
+    - AWSCore (= 2.4.1)
+  - Heimdall (1.0.0)
+
+DEPENDENCIES:
+  - AWSCognito
+  - AWSIoT
+  - AWSLambda
+  - Heimdall (~> 1.0.0)
+
+SPEC CHECKSUMS:
+  AWSCognito: a57173a82505161bd1a9c8cfe393cea9b5b1f6bb
+  AWSCore: 9bfd632f04aaf12053e639d2a9120372844beb0d
+  AWSIoT: c8d4c72ab2d817ec5b771c318cde77ef3b26d639
+  AWSLambda: c6c99296e282c3fa78af41facff9b3bd4e1648d7
+  Heimdall: 15b1b23a07213f02808fe0ef6007daf1c563d4e7
+
+COCOAPODS: 0.38.2
