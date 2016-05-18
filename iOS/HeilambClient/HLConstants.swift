@@ -1,4 +1,4 @@
-//  ViewController.swift
+//  HLConstants.swift
 //  HeilambClient
 //
 //  Created by Sinbad Flyce on 5/11/16.

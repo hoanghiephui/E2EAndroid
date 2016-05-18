@@ -14,6 +14,10 @@ import AWSIoT
 import Heimdall
 
 let kIoTTopic = "Heilamb"
+let kProtocolMessage = "message:"
+let kProtocolHandshake = "handshake:"
+let kPrefixTag = "com.sinbadflyce.aws.e2ecc"
+
 
 class ViewController: UIViewController, LGChatControllerDelegate {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
@@ -29,6 +33,7 @@ class ViewController: UIViewController, LGChatControllerDelegate {
     var stringResult : String!
     var chatController : LGChatController!
     var userId : String!
+    var receivers : NSMutableDictionary!
     
     // E2EE
     var heimdall : Heimdall!
@@ -44,7 +49,8 @@ class ViewController: UIViewController, LGChatControllerDelegate {
         iotDataManager = AWSIoTDataManager.defaultIoTDataManager()
         iotData = AWSIoTData.defaultIoTData()
         userId = NSUUID().UUIDString
-        self.heimdall = Heimdall(tagPrefix: "com.sinbadflyce.aws.e2ecc", keySize: 1024)
+        self.heimdall = Heimdall(tagPrefix: kPrefixTag, keySize: 1024)
+        receivers = NSMutableDictionary()
 
         super.init(coder: aDecoder)!
     }
@@ -249,7 +255,59 @@ class ViewController: UIViewController, LGChatControllerDelegate {
         chatController.title = "E2EE Chat"
         chatController.delegate = self
         self.subcribeIoT();
+        dispatch_async(dispatch_get_main_queue()) {
+            self.broadcastHandshake()
+        }
         self.navigationController?.pushViewController(chatController, animated: true)
+    }
+    
+    func broadcastHandshake() {
+        if let publicKeyData = self.heimdall.publicKeyDataX509() {
+            let publicKeyString = publicKeyData.base64EncodedStringWithOptions([])
+            let jsonObject: [String: AnyObject] = [
+                "action": kProtocolHandshake,
+                "user_id": userId,
+                "public_key":publicKeyString
+            ]
+            let jsonString = JSON(jsonObject).toString()
+            iotDataManager.publishString(jsonString, onTopic:kIoTTopic, qoS:.MessageDeliveryAttemptedAtMostOnce)
+        }
+    }
+    
+    func parseIncomingMessage(dataString: String!) {
+        if let dict = self.convertStringToDictionary(dataString) {
+            if let action = dict["action"] where action as! String == kProtocolHandshake {
+                 self.handleHandshakeMessage(dataString)
+            }
+            else if let action = dict["action"] where action as! String == kProtocolMessage {
+                self.handleContentMessage(dataString);
+            }
+        }
+    }
+    
+    func handleContentMessage(dataString: String!) {
+        if let dict = self.convertStringToDictionary(dataString) {
+            if let user_id = dict["user_id"] as? String, let encrypedMessage = dict["content"] as? String {
+                if let receiver = self.receivers.objectForKey(user_id) as? Heimdall {
+                    let dencrypedString = receiver.decrypt(encrypedMessage, urlEncoded: false)
+                    var sentBy  = LGChatMessage.SentBy.Opponent
+                    if (user_id == self.userId) {
+                        sentBy = LGChatMessage.SentBy.User;
+                    }
+                    let incomingMessage = LGChatMessage(content: dencrypedString! as String, sentBy: sentBy)
+                    self.chatController.appendMessage(incomingMessage)
+                }
+            }
+        }
+    }
+    
+    func handleHandshakeMessage(dataString: String!) {
+        if let dict = self.convertStringToDictionary(dataString) {
+            if let user_id = dict["user_id"] as? String, let publicKey = dict["public_key"] as? String {
+                let heimadallS = Heimdall(publicTag: kPrefixTag, publicKeyData: publicKey.dataUsingEncoding(NSUTF8StringEncoding))
+                receivers.setValue(heimadallS, forKey: user_id)
+            }
+        }
     }
     
     func subcribeIoT() {
@@ -258,37 +316,22 @@ class ViewController: UIViewController, LGChatControllerDelegate {
             
             dispatch_async(dispatch_get_main_queue()) {
                 let stringValue = NSString(data: payload, encoding: NSUTF8StringEncoding)! as String
-                if let decryptedString = self.heimdall.decrypt(stringValue, urlEncoded: false) {
-                    if let dict = self.convertStringToDictionary(decryptedString) {
-                        
-                        let user_id = dict["user_id"] as! String
-                        let content = dict["content"] as! String
-                        var sentBy  = LGChatMessage.SentBy.Opponent
-                        if (user_id == self.userId) {
-                            sentBy = LGChatMessage.SentBy.User;
-                        }
-                        
-                        let incomingMessage = LGChatMessage(content: content as String, sentBy: sentBy)
-                        self.chatController.appendMessage(incomingMessage)
-                    }
-                } else {
-                    let incomingMessage = LGChatMessage(content: "Received an encrypted message:\n\n\(stringValue)", sentBy: .Opponent)
-                    self.chatController.appendMessage(incomingMessage)
-                }
+                self.parseIncomingMessage(stringValue)
             }
         } )
     }
     
     func publishIoT(message:LGChatMessage) {
+        let partner = self.receivers.objectForKey(self.userId) as! Heimdall
+        let encryptedContent = partner.encrypt(message.content)!
         let jsonObject: [String: AnyObject] = [
+            "action": kProtocolMessage,
             "user_id": userId,
-            "content":message.content
+            "content": encryptedContent
         ]
         
         let jsonString = JSON(jsonObject).toString()
-        let encryptedString = self.heimdall.encrypt(jsonString)
-        
-        iotDataManager.publishString(encryptedString, onTopic:kIoTTopic, qoS:.MessageDeliveryAttemptedAtMostOnce)
+        iotDataManager.publishString(jsonString, onTopic:kIoTTopic, qoS:.MessageDeliveryAttemptedAtMostOnce)
     }
     
     func shouldChatController(chatController: LGChatController, addMessage message: LGChatMessage) -> Bool {

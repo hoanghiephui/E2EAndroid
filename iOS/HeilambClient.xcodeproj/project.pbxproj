@@ -9,14 +9,19 @@
 /* Begin PBXBuildFile section */
 		7C7BD557DB773F379EBD9861 /* Pods_HeilambClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 111EA566AAF7AACABDFB3525 /* Pods_HeilambClient.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		E537F4DD1CE4CD3200775DEF /* json.swift in Sources */ = {isa = PBXBuildFile; fileRef = E537F4DC1CE4CD3200775DEF /* json.swift */; };
+		E5479E7D1CEC5E45008F5A76 /* HLContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */; };
 		E5659F1B1CE313510071CD8A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5659F1A1CE313510071CD8A /* AppDelegate.swift */; };
-		E5659F1D1CE313510071CD8A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5659F1C1CE313510071CD8A /* ViewController.swift */; };
+		E5659F1D1CE313510071CD8A /* HLLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5659F1C1CE313510071CD8A /* HLLoginViewController.swift */; };
 		E5659F201CE313510071CD8A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5659F1E1CE313510071CD8A /* Main.storyboard */; };
 		E5659F221CE313510071CD8A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5659F211CE313510071CD8A /* Assets.xcassets */; };
 		E5659F251CE313510071CD8A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5659F231CE313510071CD8A /* LaunchScreen.storyboard */; };
+		E5B4E2441CEC145300BE9E50 /* HLMessagePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B4E2431CEC145300BE9E50 /* HLMessagePackage.swift */; };
+		E5B4E2461CEC146E00BE9E50 /* HLConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B4E2451CEC146E00BE9E50 /* HLConnectionManager.swift */; };
+		E5B4E2481CEC165A00BE9E50 /* HLUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B4E2471CEC165A00BE9E50 /* HLUser.swift */; };
+		E5B4E25D1CEC46C900BE9E50 /* HLUltils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B4E25C1CEC46C900BE9E50 /* HLUltils.swift */; };
 		E5F98EC61CE490F300056341 /* LGSimpleChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F98EC51CE490F300056341 /* LGSimpleChat.swift */; };
 		E5F98EC81CE4919400056341 /* awsiot-identity.p12 in Resources */ = {isa = PBXBuildFile; fileRef = E5F98EC71CE4919400056341 /* awsiot-identity.p12 */; };
-		E5F98ECC1CE492D900056341 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F98ECB1CE492D900056341 /* Constants.swift */; };
+		E5F98ECC1CE492D900056341 /* HLConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F98ECB1CE492D900056341 /* HLConstants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,16 +29,21 @@
 		399FC55DD6091F06726DDF97 /* Pods-HeilambClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.debug.xcconfig"; sourceTree = "<group>"; };
 		7AA03D05CE7CF064222FEAAA /* Pods-HeilambClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.release.xcconfig"; sourceTree = "<group>"; };
 		E537F4DC1CE4CD3200775DEF /* json.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = json.swift; sourceTree = "<group>"; };
+		E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLContactViewController.swift; sourceTree = "<group>"; };
 		E5659F171CE313510071CD8A /* HeilambClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeilambClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5659F1A1CE313510071CD8A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		E5659F1C1CE313510071CD8A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		E5659F1C1CE313510071CD8A /* HLLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HLLoginViewController.swift; sourceTree = "<group>"; };
 		E5659F1F1CE313510071CD8A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		E5659F211CE313510071CD8A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E5659F241CE313510071CD8A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E5659F261CE313510071CD8A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E5B4E2431CEC145300BE9E50 /* HLMessagePackage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLMessagePackage.swift; sourceTree = "<group>"; };
+		E5B4E2451CEC146E00BE9E50 /* HLConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLConnectionManager.swift; sourceTree = "<group>"; };
+		E5B4E2471CEC165A00BE9E50 /* HLUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLUser.swift; sourceTree = "<group>"; };
+		E5B4E25C1CEC46C900BE9E50 /* HLUltils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLUltils.swift; sourceTree = "<group>"; };
 		E5F98EC51CE490F300056341 /* LGSimpleChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LGSimpleChat.swift; sourceTree = "<group>"; };
 		E5F98EC71CE4919400056341 /* awsiot-identity.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "awsiot-identity.p12"; sourceTree = "<group>"; };
-		E5F98ECB1CE492D900056341 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		E5F98ECB1CE492D900056341 /* HLConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +75,27 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		E5479E7E1CEC5E50008F5A76 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				E5659F1C1CE313510071CD8A /* HLLoginViewController.swift */,
+				E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		E5479E7F1CEC5E5A008F5A76 /* SMS */ = {
+			isa = PBXGroup;
+			children = (
+				E5F98ECB1CE492D900056341 /* HLConstants.swift */,
+				E5B4E2471CEC165A00BE9E50 /* HLUser.swift */,
+				E5B4E25C1CEC46C900BE9E50 /* HLUltils.swift */,
+				E5B4E2431CEC145300BE9E50 /* HLMessagePackage.swift */,
+				E5B4E2451CEC146E00BE9E50 /* HLConnectionManager.swift */,
+			);
+			name = SMS;
+			sourceTree = "<group>";
+		};
 		E5659F0E1CE313510071CD8A = {
 			isa = PBXGroup;
 			children = (
@@ -87,9 +118,9 @@
 		E5659F191CE313510071CD8A /* HeilambClient */ = {
 			isa = PBXGroup;
 			children = (
-				E5F98ECB1CE492D900056341 /* Constants.swift */,
+				E5479E7F1CEC5E5A008F5A76 /* SMS */,
+				E5479E7E1CEC5E50008F5A76 /* Controllers */,
 				E5659F1A1CE313510071CD8A /* AppDelegate.swift */,
-				E5659F1C1CE313510071CD8A /* ViewController.swift */,
 				E5659F1E1CE313510071CD8A /* Main.storyboard */,
 				E5659F211CE313510071CD8A /* Assets.xcassets */,
 				E5659F231CE313510071CD8A /* LaunchScreen.storyboard */,
@@ -231,8 +262,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E5F98ECC1CE492D900056341 /* Constants.swift in Sources */,
-				E5659F1D1CE313510071CD8A /* ViewController.swift in Sources */,
+				E5B4E2441CEC145300BE9E50 /* HLMessagePackage.swift in Sources */,
+				E5F98ECC1CE492D900056341 /* HLConstants.swift in Sources */,
+				E5B4E25D1CEC46C900BE9E50 /* HLUltils.swift in Sources */,
+				E5479E7D1CEC5E45008F5A76 /* HLContactViewController.swift in Sources */,
+				E5B4E2481CEC165A00BE9E50 /* HLUser.swift in Sources */,
+				E5659F1D1CE313510071CD8A /* HLLoginViewController.swift in Sources */,
+				E5B4E2461CEC146E00BE9E50 /* HLConnectionManager.swift in Sources */,
 				E537F4DD1CE4CD3200775DEF /* json.swift in Sources */,
 				E5F98EC61CE490F300056341 /* LGSimpleChat.swift in Sources */,
 				E5659F1B1CE313510071CD8A /* AppDelegate.swift in Sources */,

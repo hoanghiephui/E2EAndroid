@@ -24,7 +24,7 @@
         <!--E2EE Chat-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="HLLoginViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -34,11 +34,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lc2-Mq-FuQ">
-                                <rect key="frame" x="212" y="324" width="177" height="30"/>
+                                <rect key="frame" x="212" y="252" width="177" height="30"/>
                                 <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="177" id="OCM-Fh-iOu"/>
-                                </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="Connect">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -48,26 +45,85 @@
                                 </connections>
                             </button>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="scI-QW-gth">
-                                <rect key="frame" x="290" y="367" width="20" height="20"/>
+                                <rect key="frame" x="290" y="295" width="20" height="20"/>
                             </activityIndicatorView>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="HyX-mn-9l0">
+                                <rect key="frame" x="212" y="167" width="177" height="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Full Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="SX5-SN-4JV">
+                                <rect key="frame" x="213" y="200" width="176" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="176" id="t9h-if-REn"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="words" autocorrectionType="no" spellCheckingType="no"/>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Lc2-Mq-FuQ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="BeW-Cf-zGs"/>
-                            <constraint firstItem="scI-QW-gth" firstAttribute="top" secondItem="Lc2-Mq-FuQ" secondAttribute="bottom" constant="13" id="PRo-wO-2hh"/>
-                            <constraint firstItem="Lc2-Mq-FuQ" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="260" id="ThZ-sW-UQ5"/>
-                            <constraint firstItem="scI-QW-gth" firstAttribute="centerX" secondItem="Lc2-Mq-FuQ" secondAttribute="centerX" id="oJS-aB-Trf"/>
+                            <constraint firstItem="HyX-mn-9l0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="103" id="8mb-oU-gnA"/>
+                            <constraint firstItem="SX5-SN-4JV" firstAttribute="top" secondItem="HyX-mn-9l0" secondAttribute="bottom" constant="3" id="Fk9-23-RsA"/>
+                            <constraint firstItem="HyX-mn-9l0" firstAttribute="centerX" secondItem="SX5-SN-4JV" secondAttribute="centerX" id="KLA-9d-5FE"/>
+                            <constraint firstItem="SX5-SN-4JV" firstAttribute="trailing" secondItem="Lc2-Mq-FuQ" secondAttribute="trailing" id="N0S-1b-odm"/>
+                            <constraint firstItem="Lc2-Mq-FuQ" firstAttribute="top" secondItem="SX5-SN-4JV" secondAttribute="bottom" constant="22" id="QTT-aO-N1M"/>
+                            <constraint firstItem="HyX-mn-9l0" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="VAd-fF-PQl"/>
+                            <constraint firstItem="HyX-mn-9l0" firstAttribute="leading" secondItem="Lc2-Mq-FuQ" secondAttribute="leading" id="mkf-Yp-bcF"/>
+                            <constraint firstItem="Lc2-Mq-FuQ" firstAttribute="centerX" secondItem="scI-QW-gth" secondAttribute="centerX" id="oNN-hx-wvO"/>
+                            <constraint firstItem="scI-QW-gth" firstAttribute="top" secondItem="Lc2-Mq-FuQ" secondAttribute="bottom" constant="13" id="rpO-iR-a9M"/>
+                            <constraint firstItem="HyX-mn-9l0" firstAttribute="trailing" secondItem="SX5-SN-4JV" secondAttribute="trailing" id="z78-JC-iLx"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="E2EE Chat" id="iwP-MG-uSH"/>
                     <connections>
                         <outlet property="activityIndicatorView" destination="scI-QW-gth" id="Qa7-4S-5rd"/>
                         <outlet property="connectButton" destination="Lc2-Mq-FuQ" id="RO1-br-q68"/>
+                        <outlet property="fullnameTextField" destination="SX5-SN-4JV" id="Df4-tv-Fls"/>
+                        <outlet property="usernameTextField" destination="HyX-mn-9l0" id="gSW-9Y-crb"/>
+                        <segue destination="20F-i8-6FH" kind="show" identifier="connect_to_contact" id="UFC-P8-AI8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-139" y="179"/>
+        </scene>
+        <!--Contact View Controller-->
+        <scene sceneID="aSL-hX-yEo">
+            <objects>
+                <viewController id="20F-i8-6FH" customClass="HLContactViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="X4a-Wb-8kO"/>
+                        <viewControllerLayoutGuide type="bottom" id="KdF-cO-gtC"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="94k-IP-5G7">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tdU-Fj-eWV">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outlet property="dataSource" destination="20F-i8-6FH" id="c9E-Qo-4ym"/>
+                                    <outlet property="delegate" destination="20F-i8-6FH" id="7bN-wI-RzQ"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="tdU-Fj-eWV" firstAttribute="bottom" secondItem="KdF-cO-gtC" secondAttribute="top" id="6c7-zP-dS2"/>
+                            <constraint firstItem="tdU-Fj-eWV" firstAttribute="top" secondItem="94k-IP-5G7" secondAttribute="top" id="8dC-8Y-UcS"/>
+                            <constraint firstAttribute="trailing" secondItem="tdU-Fj-eWV" secondAttribute="trailing" id="cfm-7b-3rj"/>
+                            <constraint firstItem="tdU-Fj-eWV" firstAttribute="leading" secondItem="94k-IP-5G7" secondAttribute="leading" id="fBO-ya-Tzk"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="tableView" destination="tdU-Fj-eWV" id="CzW-7O-HBm"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0Fm-xT-UEO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="533" y="179"/>
         </scene>
     </scenes>
 </document>
