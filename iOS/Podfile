@@ -4,7 +4,10 @@ use_frameworks!
 target 'HeilambClient' do
 
 pod 'Heimdall', '~> 1.0.0'
+pod 'Hashids-Swift', '~> 0.3.0'
+pod 'RNCryptor', '~> 4.0.0'
 pod 'AWSLambda'
+pod 'AWSDynamoDB'
 pod 'AWSCognito'
 pod 'AWSIoT'
 

@@ -11,11 +11,44 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var navigation : UINavigationController!
     var window: UIWindow?
 
-
+    func checkHaveEverSignedUp() -> Bool {
+        return (HLUser.currentUser != nil)
+    }
+    
+    func initNavigation() -> Bool {
+        if let w = self.window {
+            if let nvc = w.rootViewController {
+                self.navigation = nvc as? UINavigationController;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        if self.initNavigation() == false {
+            return false;
+        }
+        
+        if let rvc = self.navigation.viewControllers.first {
+            if self.checkHaveEverSignedUp() {
+                rvc.performSegueWithIdentifier("root_to_login", sender: self.navigation);
+            } else {
+                rvc.performSegueWithIdentifier("root_to_signup", sender: self.navigation);
+            }
+        } else {
+            return false
+        }
+        
+        HLUser.currentUser;
+        
         return true
     }
 

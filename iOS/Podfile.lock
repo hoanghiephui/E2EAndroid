@@ -1,24 +1,34 @@
 PODS:
-  - AWSCognito (2.4.1):
-    - AWSCore (= 2.4.1)
-  - AWSCore (2.4.1)
-  - AWSIoT (2.4.1):
-    - AWSCore (= 2.4.1)
-  - AWSLambda (2.4.1):
-    - AWSCore (= 2.4.1)
+  - AWSCognito (2.4.2):
+    - AWSCore (= 2.4.2)
+  - AWSCore (2.4.2)
+  - AWSDynamoDB (2.4.2):
+    - AWSCore (= 2.4.2)
+  - AWSIoT (2.4.2):
+    - AWSCore (= 2.4.2)
+  - AWSLambda (2.4.2):
+    - AWSCore (= 2.4.2)
+  - Hashids-Swift (0.3.0)
   - Heimdall (1.0.0)
+  - RNCryptor (4.0.0)
 
 DEPENDENCIES:
   - AWSCognito
+  - AWSDynamoDB
   - AWSIoT
   - AWSLambda
+  - Hashids-Swift (~> 0.3.0)
   - Heimdall (~> 1.0.0)
+  - RNCryptor (~> 4.0.0)
 
 SPEC CHECKSUMS:
-  AWSCognito: a57173a82505161bd1a9c8cfe393cea9b5b1f6bb
-  AWSCore: 9bfd632f04aaf12053e639d2a9120372844beb0d
-  AWSIoT: c8d4c72ab2d817ec5b771c318cde77ef3b26d639
-  AWSLambda: c6c99296e282c3fa78af41facff9b3bd4e1648d7
+  AWSCognito: 87cf3dadb17eed732c1c3fe21624fa8f15ef84ec
+  AWSCore: 08cc4318682a518ad73e452900336ba54e823e03
+  AWSDynamoDB: 604d26f6f13275bac9a0fec2c0194bf1593fd2fd
+  AWSIoT: 6b5aebd81920059590c7e664faae90c5e6ad4977
+  AWSLambda: 5afb17589e279a78c462c5dae671a8a5e39d05aa
+  Hashids-Swift: 5d7c069b0d4a3b70d4e2a840c420115dd517050d
   Heimdall: 15b1b23a07213f02808fe0ef6007daf1c563d4e7
+  RNCryptor: 59d6483908115af5c12b884db23392024e52a5fe
 
 COCOAPODS: 0.38.2

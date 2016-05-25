@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Hashids_Swift
 
 public class HLUltils {
     class func convertStringToDictionary(text: String) -> [String:AnyObject]? {
@@ -34,5 +35,10 @@ public class HLUltils {
         }
         
         return randomString as String
+    }
+    
+    class func uniqueFromString(stringValue:String!) -> String? {
+        let hashids = Hashids(salt: stringValue, minHashLength: 10)
+        return hashids.encode(9)
     }
 }
