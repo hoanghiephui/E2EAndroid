@@ -10,6 +10,9 @@ import Foundation
 import Hashids_Swift
 
 public class HLUltils {
+    
+    public static let kSalt = "HL-SALT"
+    
     class func convertStringToDictionary(text: String) -> [String:AnyObject]? {
         if let data = text.dataUsingEncoding(NSUTF8StringEncoding) {
             do {
@@ -40,5 +43,12 @@ public class HLUltils {
     class func uniqueFromString(stringValue:String!) -> String? {
         let hashids = Hashids(salt: stringValue, minHashLength: 10)
         return hashids.encode(9)
+    }
+    
+    class func alertController(message: String, okTitle: String) -> UIAlertController{
+        let alert : UIAlertController = UIAlertController(title: "E2EE", message: message, preferredStyle: UIAlertControllerStyle.Alert)
+        let OKAction = UIAlertAction(title: okTitle, style: .Default, handler: nil)
+        alert.addAction(OKAction)
+        return alert
     }
 }

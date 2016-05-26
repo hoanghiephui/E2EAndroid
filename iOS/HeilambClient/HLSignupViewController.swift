@@ -9,12 +9,15 @@
 import Foundation
 import UIKit
 import AWSDynamoDB
+import RNCryptor
 
 class HLSignupViewController: UIViewController {
     @IBOutlet weak var usernameTextField : UITextField?
     @IBOutlet weak var passwordTextField: UITextField?
     @IBOutlet weak var repaswwordTextField: UITextField?;
     @IBOutlet weak var fullnameTextField: UITextField?
+    
+    @IBOutlet weak var indicatorView: UIActivityIndicatorView?
     
     override func viewDidLoad() {
         usernameTextField?.text = "ysflyce"
@@ -42,9 +45,7 @@ class HLSignupViewController: UIViewController {
         }
         
         if (result == false) {
-            let alert : UIAlertController = UIAlertController(title: "E2E", message: message, preferredStyle: UIAlertControllerStyle.Alert)
-            let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-            alert.addAction(OKAction)
+            let alert = HLUltils.alertController(message, okTitle: "OK")
             self.presentViewController(alert, animated: true, completion: nil)
         }
         return result;
@@ -52,25 +53,52 @@ class HLSignupViewController: UIViewController {
     
     @IBAction func signup() {
         if validInputs() {
-            
-            let credentialProvider = AWSCognitoCredentialsProvider(regionType: AwsRegion, identityPoolId: CognitoIdentityPoolId)
-            let configuration = AWSServiceConfiguration(region: AwsRegion, credentialsProvider: credentialProvider)
-            AWSDynamoDB.registerDynamoDBWithConfiguration(configuration, forKey: "dynamoDB")            
-            
-            let dynamoDB = AWSDynamoDB(forKey: "dynamoDB")
-            let describeTableInput = AWSDynamoDBDescribeTableInput()
-            describeTableInput.tableName = "HL_User"
-            let describeTask = dynamoDB.describeTable(describeTableInput)
-            
-            describeTask.continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
-                if (task.error != nil) {
-                    let alert : UIAlertController = UIAlertController(title: "E2E", message: task.error?.localizedDescription, preferredStyle: UIAlertControllerStyle.Alert)
-                    let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-                    alert.addAction(OKAction)
+            self.indicatorView?.hidden = false
+            self.indicatorView?.startAnimating()
+            HLDynamoDBManager.shared.existTable(DyUser.dynamoDBTableName(), withBlock: { (error) -> Void in
+                if (error != nil) {
+                    self.indicatorView?.stopAnimating()
+                    let alert = HLUltils.alertController((error?.localizedDescription)!, okTitle: "OK")
                     self.presentViewController(alert, animated: true, completion: nil)
+                } else {
+                    if let password = self.passwordTextField?.text {
+                        let dyUser = DyUser(username: (self.usernameTextField?.text!)!)
+                        HLDynamoDBManager.shared.existUser(dyUser, withBlock: { (count) in
+                            if (count == 0) {
+                                if let salt = HLUltils.kSalt.dataUsingEncoding(NSUTF8StringEncoding) {
+                                    let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt)
+                                    let randomSalt = HLUltils.generateTagPrefix(8).dataUsingEncoding(NSUTF8StringEncoding)!
+                                    let keyK = RNCryptor.FormatV3.keyForPassword(password, salt: randomSalt)
+                                    let base64KeyQ = keyQ.base64EncodedStringWithOptions([])
+                                    let base64KeyK = keyK.base64EncodedStringWithOptions([])
+                                    let keyEncryptedK = RNCryptor.encryptData(keyK, password: base64KeyQ)
+                                    
+                                    dyUser.keyK = keyEncryptedK.base64EncodedStringWithOptions([])
+                                    dyUser.fullname = (self.fullnameTextField?.text!)!
+                                    dyUser.encrypt(base64KeyK)
+                                    HLDynamoDBManager.shared.saveUser(dyUser, withBlock: { (error) in
+                                        if (error != nil) {
+                                            let alert = HLUltils.alertController((error?.localizedDescription)!, okTitle: "OK")
+                                            self.presentViewController(alert, animated: true, completion: nil)
+                                            
+                                        } else {
+                                            let keychain = AWSUICKeyChainStore()
+                                            keychain.setData(keyQ, forKey: (self.usernameTextField?.text)!)
+                                        }
+                                        self.indicatorView?.stopAnimating()
+                                    })
+                                } else {
+                                    self.indicatorView?.stopAnimating()
+                                }
+                            } else {
+                                self.indicatorView?.stopAnimating()
+                                let alert = HLUltils.alertController("The username was already exist. Please enter an other", okTitle: "OK")
+                                self.presentViewController(alert, animated: true, completion: nil)
+                            }
+                        })
+                    }
                 }
-                return nil
-            })
+            })            
         }
     }
 }

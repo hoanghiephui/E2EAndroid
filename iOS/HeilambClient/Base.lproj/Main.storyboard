@@ -165,14 +165,19 @@
                                     <action selector="signup" destination="Pnd-Ay-BWi" eventType="touchUpInside" id="Mgz-29-uWd"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="rdf-zg-p8B">
+                                <rect key="frame" x="290" y="421" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="jpx-h1-Zp7" firstAttribute="trailing" secondItem="QYr-Wg-8bF" secondAttribute="trailing" id="0Bw-ar-K1F"/>
                             <constraint firstItem="H7c-Mh-N7I" firstAttribute="top" secondItem="uXs-a4-PQN" secondAttribute="bottom" constant="17" id="7Zn-83-2go"/>
+                            <constraint firstItem="rdf-zg-p8B" firstAttribute="centerX" secondItem="H7c-Mh-N7I" secondAttribute="centerX" id="9H6-pu-OO1"/>
                             <constraint firstItem="jpx-h1-Zp7" firstAttribute="top" secondItem="SX9-bl-QVi" secondAttribute="bottom" constant="129" id="D4w-cA-SSH"/>
                             <constraint firstItem="uXs-a4-PQN" firstAttribute="top" secondItem="HLY-mP-bIN" secondAttribute="bottom" constant="16" id="DhH-vg-RK5"/>
                             <constraint firstItem="QYr-Wg-8bF" firstAttribute="trailing" secondItem="HLY-mP-bIN" secondAttribute="trailing" id="EIl-qH-XeC"/>
+                            <constraint firstItem="rdf-zg-p8B" firstAttribute="top" secondItem="H7c-Mh-N7I" secondAttribute="bottom" constant="15" id="Jnm-ri-INx"/>
                             <constraint firstItem="HLY-mP-bIN" firstAttribute="top" secondItem="QYr-Wg-8bF" secondAttribute="bottom" constant="15" id="bFJ-Pv-nUt"/>
                             <constraint firstItem="QYr-Wg-8bF" firstAttribute="leading" secondItem="HLY-mP-bIN" secondAttribute="leading" id="dNn-Vs-ql4"/>
                             <constraint firstItem="uXs-a4-PQN" firstAttribute="leading" secondItem="H7c-Mh-N7I" secondAttribute="leading" id="ehe-26-JAF"/>
@@ -187,6 +192,7 @@
                     <navigationItem key="navigationItem" id="Msd-ig-Okf"/>
                     <connections>
                         <outlet property="fullnameTextField" destination="QYr-Wg-8bF" id="e3y-8y-exh"/>
+                        <outlet property="indicatorView" destination="rdf-zg-p8B" id="Jdy-vH-Vfv"/>
                         <outlet property="passwordTextField" destination="HLY-mP-bIN" id="BDR-HK-J12"/>
                         <outlet property="repaswwordTextField" destination="uXs-a4-PQN" id="Bbd-yX-JWy"/>
                         <outlet property="usernameTextField" destination="jpx-h1-Zp7" id="Png-4M-Vx7"/>
