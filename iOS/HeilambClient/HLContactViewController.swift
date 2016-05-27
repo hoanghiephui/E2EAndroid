@@ -19,9 +19,9 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!
         contacts = []
-        HLConnectionManager.sharedInstance.onHandshakeMessage   = self.onHandshakeMessage
-        HLConnectionManager.sharedInstance.onAgreedMessage      = self.onAgreedMessage
-        HLConnectionManager.sharedInstance.onReceivedMessage    = self.onReceivedMessage
+        HLConnectionManager.shared.onHandshakeMessage   = self.onHandshakeMessage
+        HLConnectionManager.shared.onAgreedMessage      = self.onAgreedMessage
+        HLConnectionManager.shared.onReceivedMessage    = self.onReceivedMessage
     }
     
     override func viewDidLoad() {
@@ -71,7 +71,7 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
     }
 
     func shouldChatController(chatController: LGChatController, addMessage message: LGChatMessage) -> Bool {
-        HLConnectionManager.sharedInstance.sendChatOnUserChannel(self.opponentUser, textMessage: message.content);
+        HLConnectionManager.shared.sendChatOnUserChannel(self.opponentUser, textMessage: message.content);
         chatController.appendMessage(message)
         return false
     }

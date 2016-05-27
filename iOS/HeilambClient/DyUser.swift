@@ -10,15 +10,82 @@ import Foundation
 import AWSDynamoDB
 import RNCryptor
 
+public typealias HLResultUserBlock = (DyUser?) -> Void
+
+public let kKeychainDB = "HEILAMB"
+
 public class DyUser: AWSDynamoDBObjectModel {
-    var userId : String?
-    var username: String?
-    var fullname: String?
-    var keyK: String?
+    var _id : String?
+    var _username: NSData?
+    var _fullname: NSData?
+    var _keyK: NSData?
+    
+    var userId : String? {
+        get {
+            return _id
+        }
+    }
+    
+    var base64KeyQ: String? {
+        get {
+            let keychain = AWSUICKeyChainStore(service: kKeychainDB)
+            let keyQ = keychain.dataForKey(self.userId!)
+            let keyQString = keyQ?.base64String
+            return keyQString
+        }
+    }
+    
+    var username : String? {
+        get {
+            return _username?.stringUTF8
+        }
+        set {
+            _username = newValue?.dataUTF8
+        }
+    }
+
+    var fullname : String? {
+        get {
+            return _fullname?.stringUTF8
+        }
+        set {
+            _fullname = newValue?.dataUTF8
+        }
+    }
+    
+    var keyK : NSData? {
+        get {
+            return _keyK
+        }
+        set {
+            _keyK = newValue
+        }
+    }
+
+    
+    class var currentUser: DyUser? {
+        struct Static {
+            static var instance: DyUser? = nil
+        }
+        
+        if (Static.instance == nil) {
+            let config = NSUserDefaults.standardUserDefaults();
+            if let username = config.objectForKey("username") as? String {
+                Static.instance = DyUser(username:username);
+                Static.instance?.fetch({ (object) in
+                })
+            }
+        }
+        return Static.instance
+    }
+    
+    required public override init() {
+        super.init()
+    }
     
     required public init(username:String) {
-        self.userId = HLUltils.uniqueFromString(username)
-        self.username = username
+        self._id = HLUltils.uniqueFromString(username)
+        self._username = username.dataUTF8
         super.init()
     }
     
@@ -27,19 +94,114 @@ public class DyUser: AWSDynamoDBObjectModel {
     }
     
     class func hashKeyAttribute() -> String {
-        return "userId"
+        return "_id"
     }
     
     class func rangeKeyAttribute() -> String {
-        return "username"
+        return "_username"
     }
     
     class func dynamoDBTableName() -> String {
         return "HL_User"
     }
     
-    func encrypt(base64KeyK: String) {
-        self.username = RNCryptor.encryptData((self.username?.dataUsingEncoding(NSUTF8StringEncoding)!)!, password: base64KeyK).base64EncodedStringWithOptions([])
-        self.fullname = RNCryptor.encryptData((self.fullname?.dataUsingEncoding(NSUTF8StringEncoding)!)!, password: base64KeyK).base64EncodedStringWithOptions([])
+    class func ignoreAttributes() -> [String] {
+        return ["keyK", "base64KeyQ", "username", "fullname"]
+    }
+
+    func clone() -> DyUser {
+        let copy = DyUser()
+        copy._id = _id
+        copy._username = _username?.copy() as? NSData
+        copy._fullname = _fullname?.copy() as? NSData
+        copy._keyK = _keyK?.copy() as? NSData
+        return copy
+    }
+    
+    func encrypt() -> Bool {
+        if let base64KeyQ = self.base64KeyQ {
+            do {
+                let decryptedKeyK = try RNCryptor.decryptData(self.keyK!, password: base64KeyQ)
+                if let base64KeyK = decryptedKeyK.base64String {
+                    self._username = RNCryptor.encryptData(self._username!, password: base64KeyK)
+                    self._fullname = RNCryptor.encryptData(self._fullname!, password: base64KeyK)
+                    return true
+                } else {
+                    return false
+                }
+            }
+            catch {
+                return false
+            }
+        }
+        return false
+    }
+    
+    func dencrypt() -> Bool {
+        if let base64KeyQ = self.base64KeyQ {
+            do {
+                let decryptedKeyK = try RNCryptor.decryptData(self.keyK!, password: base64KeyQ)
+                if let base64KeyK = decryptedKeyK.base64String {
+                    let dencryptedFN = try RNCryptor.decryptData(self._username!, password: base64KeyK)
+                    let dencryptedUN = try RNCryptor.decryptData(self._fullname!, password: base64KeyK)
+                    self._username = dencryptedUN
+                    self._fullname = dencryptedFN
+                    return true
+                } else {
+                    return false
+                }
+                
+            } catch {
+                return false
+            }
+        }
+        return false
+    }
+    
+    func save(block:HLErrorBlock) {
+        let copy = self.clone()
+        if (copy.encrypt()) {
+            HLDynamoDBManager.shared.save(copy, withBlock: { (error) in
+                if (error == nil) {
+                    block(nil)
+                } else {
+                    block(error)
+                }
+            })
+        } else {
+            block(NSError(errorMessage: "Cannot encrypt the data"))
+        }
+    }
+    
+    func fetch(block:HLResultUserBlock) {
+        HLDynamoDBManager.shared.fetch(self, attributeNameS: "_id", attributeVauleS: self.userId!, tableName: DyUser.dynamoDBTableName(), withBlock: { (item) in
+            if let user = item {
+                let keychain = AWSUICKeyChainStore(service: kKeychainDB)
+                let keyQ = keychain.dataForKey(self.userId!)
+                
+                if  let encryptedK = (user.objectForKey("_keyK") as! AWSDynamoDBAttributeValue).B,
+                    let keyQString = keyQ?.base64String,
+                    let encryptedUN = ((user.objectForKey("_username") as! AWSDynamoDBAttributeValue).B),
+                    let encryptedFN = ((user.objectForKey("_fullname") as! AWSDynamoDBAttributeValue).B) {
+                        do {
+                            let keyK = try RNCryptor.decryptData(encryptedK, password: keyQString)
+                            let base64KeyK = keyK.base64String!
+                            let dencryptedFN = try RNCryptor.decryptData(encryptedFN, password: base64KeyK)
+                            let dencryptedUN = try RNCryptor.decryptData(encryptedUN, password: base64KeyK)
+                            
+                            self._keyK = encryptedK
+                            self._fullname = dencryptedFN
+                            self._username = dencryptedUN
+                            block(self)
+                        } catch {
+                            block(self.clone())
+                        }
+                    }  else {
+                    block(self.clone())
+                }                
+            } else {
+                block(nil)
+            }
+        })
     }
 }

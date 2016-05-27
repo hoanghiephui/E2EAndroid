@@ -27,7 +27,7 @@ public class HLConnectionManager {
     public var onHandshakeMessage: ((HLMessagePackage?) -> ())?
     public var onAgreedMessage: ((HLMessagePackage?) -> ())?
     
-    class var sharedInstance: HLConnectionManager {
+    class var shared: HLConnectionManager {
         struct Static {
             static var onceToken: dispatch_once_t = 0
             static var instance: HLConnectionManager? = nil

@@ -13,6 +13,10 @@ public class HLUltils {
     
     public static let kSalt = "HL-SALT"
     
+    class var SaltData : NSData? {
+        return HLUltils.kSalt.dataUsingEncoding(NSUTF8StringEncoding);
+    }
+    
     class func convertStringToDictionary(text: String) -> [String:AnyObject]? {
         if let data = text.dataUsingEncoding(NSUTF8StringEncoding) {
             do {
@@ -50,5 +54,34 @@ public class HLUltils {
         let OKAction = UIAlertAction(title: okTitle, style: .Default, handler: nil)
         alert.addAction(OKAction)
         return alert
+    }
+}
+
+
+public extension String {
+    var dataUTF8 : NSData? {
+        get {
+            return self.dataUsingEncoding(NSUTF8StringEncoding)
+        }
+    }
+}
+
+public extension NSData {
+    var stringUTF8 :  String? {
+        get {
+            return String(data: self, encoding: NSUTF8StringEncoding)
+        }
+    }
+    
+    var base64String : String? {
+        get {
+            return self.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(rawValue: 0))
+        }
+    }
+}
+
+public extension NSError {
+    convenience init(errorMessage: String) {
+        self.init(domain: "com.heilamb.error", code: -1, userInfo: [NSLocalizedDescriptionKey : errorMessage])
     }
 }

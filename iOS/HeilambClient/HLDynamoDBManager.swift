@@ -8,6 +8,7 @@
 
 import Foundation
 import AWSDynamoDB
+import RNCryptor
 
 let kDynamoDBKey = "kDynamoDBKey"
 let kDynamoMapperKey = "kDynamoMapperKey"
@@ -39,7 +40,7 @@ public class HLDynamoDBManager {
         
         mapperConfig.saveBehavior = AWSDynamoDBObjectMapperSaveBehavior.Update
         AWSDynamoDB.registerDynamoDBWithConfiguration(configuration, forKey: kDynamoDBKey)
-        AWSDynamoDBObjectMapper.registerDynamoDBObjectMapperWithConfiguration(configuration, objectMapperConfiguration: mapperConfig,forKey: kDynamoMapperKey)
+        AWSDynamoDBObjectMapper.registerDynamoDBObjectMapperWithConfiguration(configuration, objectMapperConfiguration: mapperConfig, forKey: kDynamoMapperKey)
         
         self.dynamoDB = AWSDynamoDB(forKey: kDynamoDBKey)
         self.dynamoMapper = AWSDynamoDBObjectMapper(forKey: kDynamoMapperKey)
@@ -55,34 +56,75 @@ public class HLDynamoDBManager {
         })
     }
     
-    func saveUser(user: DyUser, withBlock block: HLErrorBlock) {
-        self.dynamoMapper.save(user).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
+    func save(model: AWSDynamoDBObjectModel, withBlock block: HLErrorBlock) {        
+        self.dynamoMapper.save(model).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
             block(task.error)
             return nil;
         })
     }
-    
-    func existUser(user: DyUser, withBlock block:HLCountBlock) {
+        
+    func fetch(model: AWSDynamoDBObjectModel, attributeNameS: String, attributeVauleS: String, tableName: String , withBlock block:HLResultBlock) {
         let queryInput = AWSDynamoDBQueryInput()
         let queryValue = AWSDynamoDBAttributeValue()
         let condition = AWSDynamoDBCondition()
-        queryInput.tableName = DyUser.dynamoDBTableName()
-        queryValue.S = user.userId
+        
+        queryInput.tableName = tableName
         condition.comparisonOperator = AWSDynamoDBComparisonOperator.EQ
+        queryValue.S = attributeVauleS
         condition.attributeValueList = [queryValue]
-        queryInput.keyConditions = ["userId" : condition]
+        queryInput.keyConditions = [attributeNameS : condition]
         
         self.dynamoDB.query(queryInput).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
             if ((task.error) != nil) {
-                block(0)
+                block(nil)
             } else {
-                if let result = task.result as? AWSDynamoDBQueryOutput {
-                    block(result.scannedCount?.integerValue)
+                if let result = task.result as? AWSDynamoDBQueryOutput where result.items!.count > 0{
+                    block(result.items![0])
                 } else {
-                    block(0)
+                    block(nil)
                 }
             }
             return nil
+        })
+    }
+    
+    func signUp(username: String, password: String, fullname: String, withBlock block:HLResultBlock) {
+        HLDynamoDBManager.shared.existTable(DyUser.dynamoDBTableName(), withBlock: { (error) -> Void in
+            if error == nil {
+                let dyUser = DyUser(username: username)
+                dyUser.fetch({ (object) in
+                    if (object == nil) {
+                        if let salt = HLUltils.SaltData {
+                            let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt)
+                            let randomSalt = HLUltils.generateTagPrefix(8).dataUTF8!
+                            let keyK = RNCryptor.FormatV3.keyForPassword(password, salt: randomSalt)
+                            let keyEncryptedK = RNCryptor.encryptData(keyK, password: keyQ.base64String!)
+                            
+                            let keychain = AWSUICKeyChainStore(service: kKeychainDB)
+                            keychain.setData(keyQ, forKey: dyUser.userId!)
+                            
+                            dyUser.keyK = keyEncryptedK
+                            dyUser.fullname = fullname
+                            dyUser.save({ (error) in
+                                if (error != nil) {
+                                    keychain.removeItemForKey(dyUser.userId!)
+                                    block(error)
+                                } else {
+                                    let config = NSUserDefaults.standardUserDefaults();
+                                    config.setObject(username, forKey: "username")
+                                    block(nil)
+                                }
+                            })
+                        } else {
+                            block(NSError(errorMessage: "Missing SALT. Please contact to us"))
+                        }
+                    } else {
+                        block(NSError(errorMessage: "The username was already exist. Please enter an other"))
+                    }
+                })
+            } else {
+                block(error)
+            }
         })
     }
 }

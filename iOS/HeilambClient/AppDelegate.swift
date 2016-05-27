@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func checkHaveEverSignedUp() -> Bool {
-        return (HLUser.currentUser != nil)
+        return (DyUser.currentUser != nil)
     }
     
     func initNavigation() -> Bool {
@@ -39,7 +39,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if let rvc = self.navigation.viewControllers.first {
             if self.checkHaveEverSignedUp() {
-                rvc.performSegueWithIdentifier("root_to_login", sender: self.navigation);
+                DyUser.currentUser?.fetch({ (object) in
+                    rvc.performSegueWithIdentifier("root_to_login", sender: self.navigation);
+                })
             } else {
                 rvc.performSegueWithIdentifier("root_to_signup", sender: self.navigation);
             }

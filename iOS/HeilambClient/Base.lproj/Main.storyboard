@@ -53,10 +53,10 @@
             </objects>
             <point key="canvasLocation" x="-860" y="487"/>
         </scene>
-        <!--E2EE Chat-->
+        <!--Login View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="HLLoginViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" userLabel="Login View Controller" customClass="HLLoginViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -84,13 +84,13 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Full Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="SX5-SN-4JV">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="****" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="SX5-SN-4JV">
                                 <rect key="frame" x="213" y="200" width="176" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="176" id="t9h-if-REn"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="words" autocorrectionType="no" spellCheckingType="no"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" secureTextEntry="YES"/>
                             </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -111,7 +111,7 @@
                     <connections>
                         <outlet property="activityIndicatorView" destination="scI-QW-gth" id="Qa7-4S-5rd"/>
                         <outlet property="connectButton" destination="Lc2-Mq-FuQ" id="RO1-br-q68"/>
-                        <outlet property="fullnameTextField" destination="SX5-SN-4JV" id="Df4-tv-Fls"/>
+                        <outlet property="passwordTextField" destination="SX5-SN-4JV" id="CBD-A0-6U8"/>
                         <outlet property="usernameTextField" destination="HyX-mn-9l0" id="gSW-9Y-crb"/>
                         <segue destination="20F-i8-6FH" kind="show" identifier="connect_to_contact" id="UFC-P8-AI8"/>
                     </connections>

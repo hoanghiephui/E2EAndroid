@@ -12,7 +12,7 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var connectButton: UIButton!
     @IBOutlet weak var usernameTextField: UITextField!
-    @IBOutlet weak var fullnameTextField: UITextField!
+    @IBOutlet weak var passwordTextField: UITextField!
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!
@@ -21,8 +21,7 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.usernameTextField.text = UIDevice.currentDevice().name.lowercaseString.stringByReplacingOccurrencesOfString(" ", withString: "")
-        self.fullnameTextField.text = UIDevice.currentDevice().name
+        self.usernameTextField.text = DyUser.currentUser?.username
     }
 
     override func didReceiveMemoryWarning() {
@@ -34,11 +33,11 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
         self.connectButton.enabled = false
         self.activityIndicatorView.startAnimating()
         if (self.usernameTextField.text != nil &&
-            self.fullnameTextField.text != nil) {
+            self.passwordTextField.text != nil) {
             let currentUser = HLUser()
             currentUser.username = usernameTextField.text
-            currentUser.fullname = fullnameTextField.text
-            HLConnectionManager.sharedInstance.connectWithUser(currentUser, statusCallback: { (success) in
+            currentUser.fullname = passwordTextField.text
+            HLConnectionManager.shared.connectWithUser(currentUser, statusCallback: { (success) in
                 self.activityIndicatorView.stopAnimating()
                 self.connectButton.enabled = true
                 if (success) {

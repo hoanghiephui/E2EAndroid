@@ -20,8 +20,8 @@ class HLSignupViewController: UIViewController {
     @IBOutlet weak var indicatorView: UIActivityIndicatorView?
     
     override func viewDidLoad() {
-        usernameTextField?.text = "ysflyce"
-        fullnameTextField?.text = "Ys Flyce"
+        usernameTextField?.text = "sinbadflyce"
+        fullnameTextField?.text = "Sinbad Flyce"
         passwordTextField?.text = "1111"
         repaswwordTextField?.text = "1111"
     }
@@ -55,50 +55,13 @@ class HLSignupViewController: UIViewController {
         if validInputs() {
             self.indicatorView?.hidden = false
             self.indicatorView?.startAnimating()
-            HLDynamoDBManager.shared.existTable(DyUser.dynamoDBTableName(), withBlock: { (error) -> Void in
-                if (error != nil) {
-                    self.indicatorView?.stopAnimating()
-                    let alert = HLUltils.alertController((error?.localizedDescription)!, okTitle: "OK")
+            HLDynamoDBManager.shared.signUp((self.usernameTextField?.text)!, password: (self.passwordTextField?.text)!, fullname: (self.fullnameTextField?.text)!, withBlock: { (error) in
+                self.indicatorView?.stopAnimating()
+                if let err = error {
+                    let alert = HLUltils.alertController((err.localizedDescription)!, okTitle: "OK")
                     self.presentViewController(alert, animated: true, completion: nil)
-                } else {
-                    if let password = self.passwordTextField?.text {
-                        let dyUser = DyUser(username: (self.usernameTextField?.text!)!)
-                        HLDynamoDBManager.shared.existUser(dyUser, withBlock: { (count) in
-                            if (count == 0) {
-                                if let salt = HLUltils.kSalt.dataUsingEncoding(NSUTF8StringEncoding) {
-                                    let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt)
-                                    let randomSalt = HLUltils.generateTagPrefix(8).dataUsingEncoding(NSUTF8StringEncoding)!
-                                    let keyK = RNCryptor.FormatV3.keyForPassword(password, salt: randomSalt)
-                                    let base64KeyQ = keyQ.base64EncodedStringWithOptions([])
-                                    let base64KeyK = keyK.base64EncodedStringWithOptions([])
-                                    let keyEncryptedK = RNCryptor.encryptData(keyK, password: base64KeyQ)
-                                    
-                                    dyUser.keyK = keyEncryptedK.base64EncodedStringWithOptions([])
-                                    dyUser.fullname = (self.fullnameTextField?.text!)!
-                                    dyUser.encrypt(base64KeyK)
-                                    HLDynamoDBManager.shared.saveUser(dyUser, withBlock: { (error) in
-                                        if (error != nil) {
-                                            let alert = HLUltils.alertController((error?.localizedDescription)!, okTitle: "OK")
-                                            self.presentViewController(alert, animated: true, completion: nil)
-                                            
-                                        } else {
-                                            let keychain = AWSUICKeyChainStore()
-                                            keychain.setData(keyQ, forKey: (self.usernameTextField?.text)!)
-                                        }
-                                        self.indicatorView?.stopAnimating()
-                                    })
-                                } else {
-                                    self.indicatorView?.stopAnimating()
-                                }
-                            } else {
-                                self.indicatorView?.stopAnimating()
-                                let alert = HLUltils.alertController("The username was already exist. Please enter an other", okTitle: "OK")
-                                self.presentViewController(alert, animated: true, completion: nil)
-                            }
-                        })
-                    }
                 }
-            })            
+            });
         }
     }
 }
