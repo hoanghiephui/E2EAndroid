@@ -56,7 +56,7 @@
         <!--Login View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" userLabel="Login View Controller" customClass="HLLoginViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Login" id="BYZ-38-t0r" userLabel="Login View Controller" customClass="HLLoginViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -107,13 +107,20 @@
                             <constraint firstItem="HyX-mn-9l0" firstAttribute="trailing" secondItem="SX5-SN-4JV" secondAttribute="trailing" id="z78-JC-iLx"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="E2EE Chat" id="iwP-MG-uSH"/>
+                    <navigationItem key="navigationItem" title="Login" id="iwP-MG-uSH">
+                        <barButtonItem key="rightBarButtonItem" title="SignUp" id="fiJ-rC-kI0">
+                            <connections>
+                                <action selector="gotoSignUp:" destination="BYZ-38-t0r" id="S6V-FE-U8u"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="activityIndicatorView" destination="scI-QW-gth" id="Qa7-4S-5rd"/>
                         <outlet property="connectButton" destination="Lc2-Mq-FuQ" id="RO1-br-q68"/>
                         <outlet property="passwordTextField" destination="SX5-SN-4JV" id="CBD-A0-6U8"/>
                         <outlet property="usernameTextField" destination="HyX-mn-9l0" id="gSW-9Y-crb"/>
                         <segue destination="20F-i8-6FH" kind="show" identifier="connect_to_contact" id="UFC-P8-AI8"/>
+                        <segue destination="Pnd-Ay-BWi" kind="show" identifier="login_to_signup" id="XF6-d3-D5q"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -123,7 +130,7 @@
         <!--Signup View Controller-->
         <scene sceneID="mmd-SK-r4Z">
             <objects>
-                <viewController id="Pnd-Ay-BWi" customClass="HLSignupViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Signup" id="Pnd-Ay-BWi" userLabel="Signup View Controller" customClass="HLSignupViewController" customModule="HeilambClient" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="SX9-bl-QVi"/>
                         <viewControllerLayoutGuide type="bottom" id="ZiC-gB-II7"/>
@@ -189,18 +196,26 @@
                             <constraint firstItem="HLY-mP-bIN" firstAttribute="trailing" secondItem="uXs-a4-PQN" secondAttribute="trailing" id="ys7-ey-gYw"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="Msd-ig-Okf"/>
+                    <navigationItem key="navigationItem" title="Signup" id="Msd-ig-Okf">
+                        <barButtonItem key="rightBarButtonItem" title="Login" id="9VU-Wq-4H8">
+                            <connections>
+                                <action selector="gotoLogin" destination="Pnd-Ay-BWi" id="WKo-ct-CJH"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="fullnameTextField" destination="QYr-Wg-8bF" id="e3y-8y-exh"/>
                         <outlet property="indicatorView" destination="rdf-zg-p8B" id="Jdy-vH-Vfv"/>
                         <outlet property="passwordTextField" destination="HLY-mP-bIN" id="BDR-HK-J12"/>
                         <outlet property="repaswwordTextField" destination="uXs-a4-PQN" id="Bbd-yX-JWy"/>
                         <outlet property="usernameTextField" destination="jpx-h1-Zp7" id="Png-4M-Vx7"/>
+                        <segue destination="20F-i8-6FH" kind="show" identifier="signup_to_contact" id="PSk-iG-XKI"/>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="signup_to_login" id="DNA-nO-gM5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ak1-Jv-gTA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-139" y="830"/>
+            <point key="canvasLocation" x="-139" y="1026"/>
         </scene>
         <!--Contact View Controller-->
         <scene sceneID="aSL-hX-yEo">
@@ -237,7 +252,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Fm-xT-UEO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="533" y="179"/>
+            <point key="canvasLocation" x="568" y="184"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="UFC-P8-AI8"/>
+        <segue reference="DNA-nO-gM5"/>
+        <segue reference="XF6-d3-D5q"/>
+    </inferredMetricsTieBreakers>
 </document>

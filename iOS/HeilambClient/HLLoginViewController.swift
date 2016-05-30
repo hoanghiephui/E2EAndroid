@@ -6,6 +6,7 @@
 //  Copyright © 2016 YusufX. All rights reserved.
 //
 
+
 import UIKit
 
 class HLLoginViewController: UIViewController, LGChatControllerDelegate {
@@ -22,6 +23,7 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
         super.viewDidLoad()
         
         self.usernameTextField.text = DyUser.currentUser?.username
+        self.passwordTextField.text = "1111"
     }
 
     override func didReceiveMemoryWarning() {
@@ -29,25 +31,41 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
         // Dispose of any resources that can be recreated.
     }
 
+    func validInputs() -> Bool {
+        
+        var message : String = "An error happend!"
+        var result : Bool = true
+        
+        if (usernameTextField?.text?.characters.count == 0 ||
+            passwordTextField?.text?.characters.count == 0) {
+            message = "Missing some field!"
+            result = false
+        }
+        if (result == false) {
+            let alert = HLUltils.alertController(message, okTitle: "OK")
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+        return result
+    }
+    
+    @IBAction func gotoSignUp(sender: AnyObject?) {
+        self.performSegueWithIdentifier("login_to_signup", sender: self)
+    }
+    
     @IBAction func send(sender: AnyObject?) {
-        self.connectButton.enabled = false
-        self.activityIndicatorView.startAnimating()
-        if (self.usernameTextField.text != nil &&
-            self.passwordTextField.text != nil) {
-            let currentUser = HLUser()
-            currentUser.username = usernameTextField.text
-            currentUser.fullname = passwordTextField.text
-            HLConnectionManager.shared.connectWithUser(currentUser, statusCallback: { (success) in
+        if (self.validInputs()) {
+            self.connectButton.enabled = false
+            self.activityIndicatorView.startAnimating()
+            HLDynamoDBManager.shared.login(self.usernameTextField.text!, password: self.passwordTextField.text!, withBlock: { (error) in
                 self.activityIndicatorView.stopAnimating()
                 self.connectButton.enabled = true
-                if (success) {
+                if error == nil {
                     self.performSegueWithIdentifier("connect_to_contact", sender: self)
                 } else {
-                    let alertController = UIAlertController(title: "Error", message: "Cannot to connect to AWS IoT", preferredStyle: UIAlertControllerStyle.Alert)
-                    let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-                    alertController.addAction(OKAction)
-                    self.presentViewController(alertController, animated: true, completion: nil)
+                    let alert = HLUltils.alertController((error?.localizedDescription)!, okTitle: "OK")
+                    self.presentViewController(alert, animated: true, completion: nil)
                 }
+                
             })
         }
     }

@@ -13,25 +13,11 @@ public class HLUser {
     public var username : String!
     public var fullname : String!
     
-    class var currentUser: HLUser? {
-        struct Static {
-            static var instance: HLUser? = nil
-        }
-        
-        if (Static.instance == nil) {
-            let config = NSUserDefaults.standardUserDefaults();
-            if let username = config.objectForKey("username") {
-                Static.instance = HLUser();
-                Static.instance?.username = username as! String
-            }
-        }
-        return Static.instance
-    }
-    
     required public init() {
     }
     
     required public init(dictionary:AnyObject) {
+        self.id = dictionary.objectForKey("id") as! String
         self.username = dictionary.objectForKey("username") as! String
         self.fullname = dictionary.objectForKey("fullname") as! String
     }

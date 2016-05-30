@@ -107,6 +107,33 @@ public class HLConnectionManager {
     // PRIVATE                                                                                                              //
     // -------- -------- -------- -------- -------- -------- -------- -------- ---------------- -------- -------- --------  //
     
+    func saveContact(messagePackage : HLMessagePackage)  {
+        let dyContact = DyContact()
+        dyContact.id = messagePackage.fromUser.id
+        dyContact.username = messagePackage.fromUser.username
+        dyContact.fullname = messagePackage.fromUser.fullname        
+        dyContact.save { (error) in
+            if error != nil {
+                print(error?.localizedDescription)
+            }
+        }
+    }
+    
+    func saveMessage(fromUserId: String, toUserId: String, textMessage: String, status: DyMessageStatus) {
+        let strTime = String(NSDate().timeIntervalSince1970)
+        let dyMessage = DyMessage(messageId: HLUltils.uniqueFromString(strTime))
+        dyMessage.fromUser = fromUserId
+        dyMessage.toUser = toUserId
+        dyMessage.content = textMessage
+        dyMessage.status = status
+        dyMessage.createdAt = strTime
+        dyMessage.save({ (error) in
+            if error != nil {
+                print(error?.localizedDescription)
+            }
+        })
+    }
+    
     func parseStringToHLMessage(stringValue: String!) -> HLMessagePackage? {
         if let dict = HLUltils.convertStringToDictionary(stringValue) {
             return HLMessagePackage(dictionary: dict)
@@ -126,12 +153,14 @@ public class HLConnectionManager {
                         if (self.currentUser.isNotMe(messagePackage.fromUser)) {
                             callback(messagePackage)
                             self.publicKeys[messagePackage.fromUser.username] = messagePackage.content
+                            self.saveContact(messagePackage)
                         }
                     }
                     
                     if let callback = self.onReceivedMessage where messagePackage.type == HLMessageType.TalkingMessage {
                         if let decryptedString = self.localHeimdall.decrypt(messagePackage.content) {
                             messagePackage.content = decryptedString
+                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Sent)
                         }
                         callback(messagePackage)
                     }
@@ -151,6 +180,7 @@ public class HLConnectionManager {
                         callback(messagePackage)
                         self.publicKeys[messagePackage.fromUser.username] = messagePackage.content
                         self.sendAgreePublicKeyOnUserChannel(messagePackage.fromUser)
+                        self.saveContact(messagePackage)
                     }
                 }
             }
@@ -189,9 +219,12 @@ public class HLConnectionManager {
                 if let jsonObject = messagePackage.jsonObject() {
                     let jsonString = JSON(jsonObject).toString()
                     iotDataManager.publishString(jsonString, onTopic: theUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
+                    self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Sent)
                     return true
                 }
             }
+        } else {
+            self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Unknown)
         }
         return false
     }

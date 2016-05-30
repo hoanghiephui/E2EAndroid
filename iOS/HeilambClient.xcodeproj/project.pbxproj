@@ -10,6 +10,8 @@
 		7C7BD557DB773F379EBD9861 /* Pods_HeilambClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 111EA566AAF7AACABDFB3525 /* Pods_HeilambClient.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		E537F4DD1CE4CD3200775DEF /* json.swift in Sources */ = {isa = PBXBuildFile; fileRef = E537F4DC1CE4CD3200775DEF /* json.swift */; };
 		E5479E7D1CEC5E45008F5A76 /* HLContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */; };
+		E55D470D1CFBEC4100178074 /* DyContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55D470C1CFBEC4100178074 /* DyContact.swift */; };
+		E55D470F1CFBEE5800178074 /* DyMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55D470E1CFBEE5800178074 /* DyMessage.swift */; };
 		E564B9DF1CF6A68600486517 /* DyUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E564B9DE1CF6A68600486517 /* DyUser.swift */; };
 		E564B9E11CF70E3800486517 /* HLDynamoDBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E564B9E01CF70E3800486517 /* HLDynamoDBManager.swift */; };
 		E5659F1B1CE313510071CD8A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5659F1A1CE313510071CD8A /* AppDelegate.swift */; };
@@ -33,6 +35,8 @@
 		7AA03D05CE7CF064222FEAAA /* Pods-HeilambClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.release.xcconfig"; sourceTree = "<group>"; };
 		E537F4DC1CE4CD3200775DEF /* json.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = json.swift; sourceTree = "<group>"; };
 		E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLContactViewController.swift; sourceTree = "<group>"; };
+		E55D470C1CFBEC4100178074 /* DyContact.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyContact.swift; sourceTree = "<group>"; };
+		E55D470E1CFBEE5800178074 /* DyMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyMessage.swift; sourceTree = "<group>"; };
 		E564B9DE1CF6A68600486517 /* DyUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyUser.swift; sourceTree = "<group>"; };
 		E564B9E01CF70E3800486517 /* HLDynamoDBManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLDynamoDBManager.swift; sourceTree = "<group>"; };
 		E5659F171CE313510071CD8A /* HeilambClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeilambClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,6 +89,8 @@
 			isa = PBXGroup;
 			children = (
 				E564B9DE1CF6A68600486517 /* DyUser.swift */,
+				E55D470C1CFBEC4100178074 /* DyContact.swift */,
+				E55D470E1CFBEE5800178074 /* DyMessage.swift */,
 			);
 			name = DyDB;
 			sourceTree = "<group>";
@@ -286,12 +292,14 @@
 				E5479E7D1CEC5E45008F5A76 /* HLContactViewController.swift in Sources */,
 				E5B4E2481CEC165A00BE9E50 /* HLUser.swift in Sources */,
 				E5659F1D1CE313510071CD8A /* HLLoginViewController.swift in Sources */,
+				E55D470F1CFBEE5800178074 /* DyMessage.swift in Sources */,
 				E5DB11FC1CF5835B0079D1B5 /* HLSignupViewController.swift in Sources */,
 				E564B9DF1CF6A68600486517 /* DyUser.swift in Sources */,
 				E5B4E2461CEC146E00BE9E50 /* HLConnectionManager.swift in Sources */,
 				E537F4DD1CE4CD3200775DEF /* json.swift in Sources */,
 				E5F98EC61CE490F300056341 /* LGSimpleChat.swift in Sources */,
 				E5659F1B1CE313510071CD8A /* AppDelegate.swift in Sources */,
+				E55D470D1CFBEC4100178074 /* DyContact.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

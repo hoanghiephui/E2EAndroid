@@ -15,3 +15,5 @@ let CertificateSigningRequestCountryName = "US"
 let CertificateSigningRequestOrganizationName = "Amazon.com Inc."
 let CertificateSigningRequestOrganizationalUnitName = "Amazon Web Services"
 let PolicyName = "heilamb_ios"
+
+public let kKeychainDB = "HEILAMB"

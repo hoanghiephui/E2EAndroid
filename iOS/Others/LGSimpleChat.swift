@@ -362,11 +362,11 @@ class LGChatController : UIViewController, UITableViewDelegate, UITableViewDataS
     // MARK: Rotation
     
     override func willAnimateRotationToInterfaceOrientation(toInterfaceOrientation: UIInterfaceOrientation, duration: NSTimeInterval) {
-        super.willAnimateRotationToInterfaceOrientation(toInterfaceOrientation, duration: duration)
+        //super.willAnimateRotationToInterfaceOrientation(toInterfaceOrientation, duration: duration)
         self.tableView.reloadData()
     }
     override func didRotateFromInterfaceOrientation(fromInterfaceOrientation: UIInterfaceOrientation) {
-        super.didRotateFromInterfaceOrientation(fromInterfaceOrientation)
+        //super.didRotateFromInterfaceOrientation(fromInterfaceOrientation)
         UIView.animateWithDuration(0.25, delay: 0.0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self.scrollToBottom()
             }, completion: nil)

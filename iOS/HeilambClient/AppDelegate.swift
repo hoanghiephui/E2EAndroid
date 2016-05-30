@@ -49,8 +49,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
         
-        HLUser.currentUser;
-        
         return true
     }
 

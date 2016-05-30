@@ -9,64 +9,123 @@
 import Foundation
 import UIKit
 
+extension LGChatController {
+    func loadMessagesHistory() {
+        DyMessage.fetchAll { (results) in
+            if let messages = results {
+                let sortedMsgs = messages.sort({
+                    if let m0 = $0 as? DyMessage, let m1 = $1 as? DyMessage {
+                        return m0.createdAtDate!.compare(m1.createdAtDate!) == NSComparisonResult.OrderedAscending
+                    }
+                    return false
+                })
+                
+                for m in sortedMsgs {
+                    let msg = m as! DyMessage
+                    var sentBy = LGChatMessage.SentBy.User
+                    if (msg.fromUser != DyUser.currentUser?.userId) {
+                        sentBy = LGChatMessage.SentBy.Opponent
+                    }
+                    let lgm = LGChatMessage(content: msg.content!, sentBy: sentBy)
+                    self.appendMessage(lgm)
+                }
+            }
+        }
+    }
+}
+
 class HLContactViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, LGChatControllerDelegate {
     @IBOutlet weak var tableView : UITableView!
     
-    var contacts : [HLUser]!
+    var contacts : [String : HLUser]!
     var chatController : LGChatController!
     var opponentUser: HLUser!
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)!
-        contacts = []
+        contacts = [String : HLUser]()
         HLConnectionManager.shared.onHandshakeMessage   = self.onHandshakeMessage
         HLConnectionManager.shared.onAgreedMessage      = self.onAgreedMessage
         HLConnectionManager.shared.onReceivedMessage    = self.onReceivedMessage
     }
     
+    func connectAWSIot() {
+        self.title = "Connecting..."
+        let chatUser = HLUser()
+        chatUser.id = DyUser.currentUser?.userId
+        chatUser.username =  DyUser.currentUser?.username
+        chatUser.fullname =  DyUser.currentUser?.fullname
+        
+        HLConnectionManager.shared.connectWithUser(chatUser) { (success) in
+            self.title = "Ready"
+            DyContact.fetchAll({ (items) in
+                if let arrayContact = items {
+                    for ct in arrayContact {
+                        let sct = ct as! DyContact
+                        let chatUser = HLUser()
+                        chatUser.id = sct.id
+                        chatUser.username = sct.username
+                        chatUser.fullname = sct.fullname
+                        self.contacts[chatUser.id] = chatUser
+                    }
+                    
+                    self.tableView.reloadData()
+                }
+            })
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Contact-Cell")
+        self.connectAWSIot()
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return contacts.count
+        return contacts.keys.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell:UITableViewCell = self.tableView.dequeueReusableCellWithIdentifier("Contact-Cell") as UITableViewCell!
-        cell.textLabel?.text  = self.contacts[indexPath.row].fullname
+        let keys = Array(self.contacts.keys)
+        let key = keys[indexPath.row] as String
+        let chatUser = self.contacts[key]
+        cell.textLabel?.text  = chatUser?.fullname
         cell.accessoryType = UITableViewCellAccessoryType.DisclosureIndicator
         return cell
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        self.opponentUser = self.contacts[indexPath.row];
+        let keys = Array(self.contacts.keys)
+        let key = keys[indexPath.row] as String
+        let chatUser = self.contacts[key]
+        self.opponentUser = chatUser
         self.chatController = LGChatController()
         chatController.opponentImage = UIImage(named: "opponent")
         chatController.title = "E2EE Chat"
         chatController.delegate = self
+        chatController.loadMessagesHistory()
         self.navigationController?.pushViewController(chatController, animated: true)
     }
     
     func onHandshakeMessage(messagePackage: HLMessagePackage?) {
         if  let mpg = messagePackage {
-            self.contacts.append(mpg.fromUser)
+            self.contacts[mpg.fromUser.id] = mpg.fromUser
             self.tableView.reloadData()
         }
     }
     
     func onAgreedMessage(messagePackage: HLMessagePackage?) {
         if  let mpg = messagePackage {
-            self.contacts.append(mpg.fromUser)
+            self.contacts[mpg.fromUser.id] = mpg.fromUser
             self.tableView.reloadData()
         }
     }
 
     func onReceivedMessage(messagePackage: HLMessagePackage?) {
-        if  let mpg = messagePackage {
+        if  let mpg = messagePackage, let controller = self.chatController {
             let incomingMessage = LGChatMessage(content: mpg.content, sentBy: .Opponent)
-            self.chatController.appendMessage(incomingMessage)
+            controller.appendMessage(incomingMessage)
         }
     }
 

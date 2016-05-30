@@ -20,10 +20,18 @@ class HLSignupViewController: UIViewController {
     @IBOutlet weak var indicatorView: UIActivityIndicatorView?
     
     override func viewDidLoad() {
-        usernameTextField?.text = "sinbadflyce"
-        fullnameTextField?.text = "Sinbad Flyce"
-        passwordTextField?.text = "1111"
-        repaswwordTextField?.text = "1111"
+        
+        #if (arch(i386) || arch(x86_64)) && os(iOS)
+            usernameTextField?.text = "sinbadflyce"
+            fullnameTextField?.text = "Sinbad Flyce"
+            passwordTextField?.text = "1111"
+            repaswwordTextField?.text = "1111"
+        #else
+            usernameTextField?.text = "ysflyce"
+            fullnameTextField?.text = "Ys Flyce"
+            passwordTextField?.text = "1111"
+            repaswwordTextField?.text = "1111"
+        #endif
     }
     
     func validInputs() -> Bool {
@@ -51,6 +59,10 @@ class HLSignupViewController: UIViewController {
         return result;
     }
     
+    @IBAction func gotoLogin() {
+        self.performSegueWithIdentifier("signup_to_login", sender: self);
+    }
+    
     @IBAction func signup() {
         if validInputs() {
             self.indicatorView?.hidden = false
@@ -60,6 +72,8 @@ class HLSignupViewController: UIViewController {
                 if let err = error {
                     let alert = HLUltils.alertController((err.localizedDescription)!, okTitle: "OK")
                     self.presentViewController(alert, animated: true, completion: nil)
+                } else {
+                    self.performSegueWithIdentifier("signup_to_contact", sender: self)
                 }
             });
         }

@@ -8,8 +8,7 @@
 
 import Foundation
 
-public enum HLMessageType : Int {
-    
+public enum HLMessageType : Int {    
     case Unknown
     case BroadcastPublicKey
     case AgreePublicKey
@@ -63,6 +62,7 @@ public class HLMessagePackage {
             "messageType": self.type.rawValue,
             "data" : [
                 "fromUser": [
+                    "id": self.fromUser.id,
                     "username": self.fromUser.username,
                     "fullname": self.fromUser.fullname],
             "content": self.content]

@@ -12,17 +12,23 @@ import RNCryptor
 
 public typealias HLResultUserBlock = (DyUser?) -> Void
 
-public let kKeychainDB = "HEILAMB"
-
 public class DyUser: AWSDynamoDBObjectModel {
     var _id : String?
     var _username: NSData?
     var _fullname: NSData?
     var _keyK: NSData?
     
+    var _isDirty : Bool?
+    
     var userId : String? {
         get {
             return _id
+        }
+    }
+    
+    var isDirty : Bool {
+        get {
+            return _isDirty != nil ? _isDirty! : true
         }
     }
     
@@ -53,7 +59,7 @@ public class DyUser: AWSDynamoDBObjectModel {
         }
     }
     
-    var keyK : NSData? {
+    var keyEncryptedK : NSData? {
         get {
             return _keyK
         }
@@ -61,7 +67,21 @@ public class DyUser: AWSDynamoDBObjectModel {
             _keyK = newValue
         }
     }
-
+    
+    var keyDecryptedK : NSData? {
+        get {
+            if let base64KeyQ = self.base64KeyQ {
+                do {
+                    let decryptedKeyK = try RNCryptor.decryptData(self.keyEncryptedK!, password: base64KeyQ)
+                    return decryptedKeyK
+                }
+                catch {
+                    return nil
+                }
+            }
+            return nil
+        }
+    }
     
     class var currentUser: DyUser? {
         struct Static {
@@ -72,8 +92,6 @@ public class DyUser: AWSDynamoDBObjectModel {
             let config = NSUserDefaults.standardUserDefaults();
             if let username = config.objectForKey("username") as? String {
                 Static.instance = DyUser(username:username);
-                Static.instance?.fetch({ (object) in
-                })
             }
         }
         return Static.instance
@@ -97,16 +115,12 @@ public class DyUser: AWSDynamoDBObjectModel {
         return "_id"
     }
     
-    class func rangeKeyAttribute() -> String {
-        return "_username"
-    }
-    
     class func dynamoDBTableName() -> String {
         return "HL_User"
     }
     
     class func ignoreAttributes() -> [String] {
-        return ["keyK", "base64KeyQ", "username", "fullname"]
+        return ["keyEncryptedK", "keyDecryptedK", "base64KeyQ", "username", "fullname", "_isDirty", "isDirty"]
     }
 
     func clone() -> DyUser {
@@ -121,7 +135,7 @@ public class DyUser: AWSDynamoDBObjectModel {
     func encrypt() -> Bool {
         if let base64KeyQ = self.base64KeyQ {
             do {
-                let decryptedKeyK = try RNCryptor.decryptData(self.keyK!, password: base64KeyQ)
+                let decryptedKeyK = try RNCryptor.decryptData(self.keyEncryptedK!, password: base64KeyQ)
                 if let base64KeyK = decryptedKeyK.base64String {
                     self._username = RNCryptor.encryptData(self._username!, password: base64KeyK)
                     self._fullname = RNCryptor.encryptData(self._fullname!, password: base64KeyK)
@@ -140,7 +154,7 @@ public class DyUser: AWSDynamoDBObjectModel {
     func dencrypt() -> Bool {
         if let base64KeyQ = self.base64KeyQ {
             do {
-                let decryptedKeyK = try RNCryptor.decryptData(self.keyK!, password: base64KeyQ)
+                let decryptedKeyK = try RNCryptor.decryptData(self.keyEncryptedK!, password: base64KeyQ)
                 if let base64KeyK = decryptedKeyK.base64String {
                     let dencryptedFN = try RNCryptor.decryptData(self._username!, password: base64KeyK)
                     let dencryptedUN = try RNCryptor.decryptData(self._fullname!, password: base64KeyK)
@@ -192,6 +206,7 @@ public class DyUser: AWSDynamoDBObjectModel {
                             self._keyK = encryptedK
                             self._fullname = dencryptedFN
                             self._username = dencryptedUN
+                            self._isDirty = false
                             block(self)
                         } catch {
                             block(self.clone())
