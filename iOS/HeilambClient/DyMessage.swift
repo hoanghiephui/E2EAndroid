@@ -12,6 +12,7 @@ import RNCryptor
 
 public enum DyMessageStatus : Int {
     case Unknown
+    case Unsent
     case Sent
     case Deliveried
 }
@@ -71,12 +72,16 @@ public class DyMessage: AWSDynamoDBObjectModel {
 
     var status: DyMessageStatus? {
         get {
-            let iv:Int? = Int((_status?.stringUTF8)!)
-            return DyMessageStatus(rawValue: iv!)
+            if (_status != nil && _status?.stringUTF8 != nil) {
+                let iv:Int = Int((_status!.stringUTF8)!)!
+                return DyMessageStatus(rawValue: iv)
+            } else {
+              return DyMessageStatus.Unknown
+            }
         }
         set {
-            let sv:String? = String(newValue?.rawValue)
-            _status = sv?.dataUTF8
+            let sv:String = String(newValue!.rawValue)
+            _status = sv.dataUTF8
         }
     }
     
@@ -112,6 +117,15 @@ public class DyMessage: AWSDynamoDBObjectModel {
         copy._status = _status?.copy() as? NSData
         copy._createAt = _createAt?.copy() as? NSData
         return copy
+    }
+    
+    func copyData(other : DyMessage) {
+        self._msId = other._msId
+        self._fromUser = other._fromUser?.copy() as? NSData
+        self._toUser = other._toUser?.copy() as? NSData
+        self._content = other._content?.copy() as? NSData
+        self._status = other._status?.copy() as? NSData
+        self._createAt = other._createAt?.copy() as? NSData
     }
     
     func encrypt() -> Bool {
@@ -161,12 +175,39 @@ public class DyMessage: AWSDynamoDBObjectModel {
         }
         return false
     }
+    
     func save(block:HLErrorBlock) {
         let copy = self.clone()
         copy.encrypt()
         HLDynamoDBManager.shared.save(copy) { (error) in
             block(error)
         }
+    }
+    
+    func fetchAndUpdate(status: DyMessageStatus, block: HLErrorBlock) {
+        HLDynamoDBManager.shared.fetchModel(DyMessage.self, haskKey: self.id!, block: { (item) in
+            let dyMsg  = item as! DyMessage
+            if let base64KeyQ = DyUser.currentUser!.base64KeyQ {
+                do {
+                    let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
+                    if let base64KeyK = decryptedKeyK.base64String {
+                        dyMsg.status = status
+                        dyMsg._status = RNCryptor.encryptData(dyMsg._status!, password: base64KeyK)
+                        self.copyData(dyMsg)
+                        HLDynamoDBManager.shared.save(dyMsg, withBlock: { (error) in
+                            block(error)
+                        })
+                    } else {
+                        block(NSError(errorMessage: "No exist keyK"))
+                    }
+                }
+                catch {
+                    block(NSError(errorMessage: "Cannot decrypt message"))
+                }
+            } else {
+                block(NSError(errorMessage: "No exist keyQ"))
+            }
+        })
     }
     
     class func fetchAll(block : HLResultArrayBlock) {

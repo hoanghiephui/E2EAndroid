@@ -31,8 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true;
     }
     
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {                
         if self.initNavigation() == false {
             return false;
         }

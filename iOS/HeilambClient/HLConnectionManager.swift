@@ -10,6 +10,7 @@ import Foundation
 import AWSCore
 import AWSIoT
 import Heimdall
+import RNCryptor
 
 let kHandshakeChannel = "kHandshakeChannel"
 let kPrefixHeimdall = "com.sinbadflyce.aws.e2ee.chat"
@@ -26,6 +27,7 @@ public class HLConnectionManager {
     public var onReceivedMessage: ((HLMessagePackage?) -> ())?
     public var onHandshakeMessage: ((HLMessagePackage?) -> ())?
     public var onAgreedMessage: ((HLMessagePackage?) -> ())?
+    public var onDeliveriedMessage: ((HLMessagePackage?) -> ())?
     
     class var shared: HLConnectionManager {
         struct Static {
@@ -119,7 +121,7 @@ public class HLConnectionManager {
         }
     }
     
-    func saveMessage(fromUserId: String, toUserId: String, textMessage: String, status: DyMessageStatus) {
+    func saveMessage(fromUserId: String, toUserId: String, textMessage: String, status: DyMessageStatus, block: (String?) -> Void) {
         let strTime = String(NSDate().timeIntervalSince1970)
         let dyMessage = DyMessage(messageId: HLUltils.uniqueFromString(strTime))
         dyMessage.fromUser = fromUserId
@@ -129,7 +131,53 @@ public class HLConnectionManager {
         dyMessage.createdAt = strTime
         dyMessage.save({ (error) in
             if error != nil {
-                print(error?.localizedDescription)
+                block(nil)
+            } else {
+                block(dyMessage.id)
+            }
+        })
+    }
+    
+    func saveMessage(messageId: String, status: DyMessageStatus) {
+        let dyMessage = DyMessage(messageId: messageId)
+        dyMessage.fetchAndUpdate(status, block: { (error) in
+            if error != nil {
+                print("[HL] Can't save message")
+            }
+        })
+    }
+    
+    func resendMessagesOnUser(fromUser: HLUser) {
+        DyMessage.fetchAll({ (results) in
+            if let messages = results {
+                let sortedMsgs = messages.sort({
+                    if let m0 = $0 as? DyMessage, let m1 = $1 as? DyMessage {
+                        return m0.createdAtDate!.compare(m1.createdAtDate!) == NSComparisonResult.OrderedAscending
+                    }
+                    return false
+                })
+                for m in sortedMsgs {
+                    let msg = m as! DyMessage
+                    if let s = msg.status, let toUser = msg.toUser {
+                        if ((s == DyMessageStatus.Unsent || s == DyMessageStatus.Sent) && (toUser == fromUser.id)) {
+                            if let publicKeyString = self.publicKeys[fromUser.username] {
+                                let puplicKeyData = NSData(base64EncodedString: publicKeyString, options:NSDataBase64DecodingOptions(rawValue: 0))
+                                if let partnerHeimdall = Heimdall(publicTag: HLUltils.generateTagPrefix(12), publicKeyData: puplicKeyData) {
+                                    let encryptedText = partnerHeimdall.encrypt(msg.content!)
+                                    let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText, messageId: msg.id)
+                                    if let jsonObject = messagePackage.jsonObject() {
+                                        let jsonString = JSON(jsonObject).toString()
+                                        self.iotDataManager.publishString(jsonString, onTopic: fromUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
+                                    } else {
+                                        print("[HL] Cannot send message (error JSON): fromUser \(self.currentUser.id), toUser:\(fromUser.id)")
+                                    }
+                                } else {
+                                }
+                            } else {
+                            }
+                        }
+                    }
+                }
             }
         })
     }
@@ -154,14 +202,22 @@ public class HLConnectionManager {
                             callback(messagePackage)
                             self.publicKeys[messagePackage.fromUser.username] = messagePackage.content
                             self.saveContact(messagePackage)
+                            self.resendMessagesOnUser(messagePackage.fromUser)
                         }
                     }
                     
                     if let callback = self.onReceivedMessage where messagePackage.type == HLMessageType.TalkingMessage {
                         if let decryptedString = self.localHeimdall.decrypt(messagePackage.content) {
                             messagePackage.content = decryptedString
-                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Sent)
+                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Deliveried,block: {(error) -> Void in
+                            })
                         }
+                        self.sendDeliveriedOnUserChannel(messagePackage.fromUser.username, fromUser: self.currentUser, messageId: messagePackage.messageId)
+                        callback(messagePackage)
+                    }
+                    
+                    if let callback = self.onDeliveriedMessage where messagePackage.type == HLMessageType.DeliveredMessage {
+                        self.saveMessage(messagePackage.messageId, status: DyMessageStatus.Deliveried)
                         callback(messagePackage)
                     }
                 }
@@ -181,6 +237,7 @@ public class HLConnectionManager {
                         self.publicKeys[messagePackage.fromUser.username] = messagePackage.content
                         self.sendAgreePublicKeyOnUserChannel(messagePackage.fromUser)
                         self.saveContact(messagePackage)
+                        self.resendMessagesOnUser(messagePackage.fromUser)
                     }
                 }
             }
@@ -209,22 +266,41 @@ public class HLConnectionManager {
         }
     }
     
-    func sendChatOnUserChannel(theUser: HLUser!, textMessage: String!) -> Bool {
+    func sendDeliveriedOnUserChannel(userChannel: String, fromUser: HLUser!, messageId: String)  {
+        let messagePackage = HLMessagePackage(deliveriedUser: fromUser, messageId: messageId)
         
+        if let jsonObject = messagePackage.jsonObject() {
+            let jsonString = JSON(jsonObject).toString()
+            iotDataManager.publishString(jsonString, onTopic: userChannel, qoS: .MessageDeliveryAttemptedAtMostOnce)
+        }
+    }
+    
+    func sendChatOnUserChannel(theUser: HLUser!, textMessage: String!) -> Bool {
         if let publicKeyString = self.publicKeys[theUser.username] {
             let puplicKeyData = NSData(base64EncodedString: publicKeyString, options:NSDataBase64DecodingOptions(rawValue: 0))
             if let partnerHeimdall = Heimdall(publicTag: HLUltils.generateTagPrefix(12), publicKeyData: puplicKeyData) {
                 let encryptedText = partnerHeimdall.encrypt(textMessage)
-                let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText)
-                if let jsonObject = messagePackage.jsonObject() {
-                    let jsonString = JSON(jsonObject).toString()
-                    iotDataManager.publishString(jsonString, onTopic: theUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
-                    self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Sent)
-                    return true
-                }
+                self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Sent, block: {(messageId) -> Void in
+                    if messageId != nil {
+                        let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText, messageId: messageId)
+                        if let jsonObject = messagePackage.jsonObject() {
+                            let jsonString = JSON(jsonObject).toString()
+                            self.iotDataManager.publishString(jsonString, onTopic: theUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
+                        } else {
+                             print("[HL] Cannot send message (error JSON): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
+                        }
+                    } else {
+                        print("[HL] Cannot send message (error messageId): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
+                    }
+                })
+                return true
+            } else {
+                print("[HL] Cannot send message (error RSA): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
             }
         } else {
-            self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Unknown)
+            self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Unsent, block: {(error) -> Void in
+                print("[HL] send offline message: fromUser \(self.currentUser.id), toUser:\(theUser.id)")
+            })
         }
         return false
     }

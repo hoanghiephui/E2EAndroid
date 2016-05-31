@@ -118,6 +118,17 @@ public class HLDynamoDBManager {
         })
     }
     
+    func fetchModel(modelClass: AnyClass,  haskKey: String, block:HLResultBlock) {
+        self.dynamoMapper.load(modelClass, hashKey: haskKey, rangeKey: nil).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
+            if task.error == nil && task.result != nil {
+                let dyMessage = task.result as! DyMessage
+                block(dyMessage)
+            } else {
+                    block (nil)
+            }
+            return nil
+        })
+    }
     
     func createContactDBTable(dyUser: DyUser, withBlock block:HLErrorBlock) {
         

@@ -9,31 +9,6 @@
 import Foundation
 import UIKit
 
-extension LGChatController {
-    func loadMessagesHistory() {
-        DyMessage.fetchAll { (results) in
-            if let messages = results {
-                let sortedMsgs = messages.sort({
-                    if let m0 = $0 as? DyMessage, let m1 = $1 as? DyMessage {
-                        return m0.createdAtDate!.compare(m1.createdAtDate!) == NSComparisonResult.OrderedAscending
-                    }
-                    return false
-                })
-                
-                for m in sortedMsgs {
-                    let msg = m as! DyMessage
-                    var sentBy = LGChatMessage.SentBy.User
-                    if (msg.fromUser != DyUser.currentUser?.userId) {
-                        sentBy = LGChatMessage.SentBy.Opponent
-                    }
-                    let lgm = LGChatMessage(content: msg.content!, sentBy: sentBy)
-                    self.appendMessage(lgm)
-                }
-            }
-        }
-    }
-}
-
 class HLContactViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, LGChatControllerDelegate {
     @IBOutlet weak var tableView : UITableView!
     
@@ -47,6 +22,7 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
         HLConnectionManager.shared.onHandshakeMessage   = self.onHandshakeMessage
         HLConnectionManager.shared.onAgreedMessage      = self.onAgreedMessage
         HLConnectionManager.shared.onReceivedMessage    = self.onReceivedMessage
+        HLConnectionManager.shared.onDeliveriedMessage  = self.OnDeliveriedMessage
     }
     
     func connectAWSIot() {
@@ -72,6 +48,32 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
                     self.tableView.reloadData()
                 }
             })
+        }
+    }
+    
+    func loadMessagesHistory() {
+        DyMessage.fetchAll { (results) in
+            if let messages = results {
+                let sortedMsgs = messages.sort({
+                    if let m0 = $0 as? DyMessage, let m1 = $1 as? DyMessage {
+                        return m0.createdAtDate!.compare(m1.createdAtDate!) == NSComparisonResult.OrderedAscending
+                    }
+                    return false
+                })
+                for m in sortedMsgs {
+                    let dyMsg = m as! DyMessage
+                    if (dyMsg.fromUser == self.opponentUser.id ||
+                        dyMsg.toUser == self.opponentUser.id) {
+                        var sentBy = LGChatMessage.SentBy.User
+                        if (dyMsg.fromUser != DyUser.currentUser?.userId) {
+                            sentBy = LGChatMessage.SentBy.Opponent
+                        }
+                        
+                        let lgm = LGChatMessage(content: dyMsg.content!, sentBy: sentBy)
+                        self.chatController.appendMessage(lgm)
+                    }
+                }
+            }
         }
     }
     
@@ -104,7 +106,7 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
         chatController.opponentImage = UIImage(named: "opponent")
         chatController.title = "E2EE Chat"
         chatController.delegate = self
-        chatController.loadMessagesHistory()
+        self.loadMessagesHistory()
         self.navigationController?.pushViewController(chatController, animated: true)
     }
     
@@ -129,6 +131,9 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
         }
     }
 
+    func OnDeliveriedMessage(messagePackage: HLMessagePackage?) {
+    }
+    
     func shouldChatController(chatController: LGChatController, addMessage message: LGChatMessage) -> Bool {
         HLConnectionManager.shared.sendChatOnUserChannel(self.opponentUser, textMessage: message.content);
         chatController.appendMessage(message)
