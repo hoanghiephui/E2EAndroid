@@ -122,13 +122,12 @@ public class HLConnectionManager {
     }
     
     func saveMessage(fromUserId: String, toUserId: String, textMessage: String, status: DyMessageStatus, block: (String?) -> Void) {
-        let strTime = String(NSDate().timeIntervalSince1970)
-        let dyMessage = DyMessage(messageId: HLUltils.uniqueFromString(strTime))
-        dyMessage.fromUser = fromUserId
-        dyMessage.toUser = toUserId
+        
+        let dyMessage = DyMessage()
+        dyMessage.fromUserId = fromUserId
+        dyMessage.toUserId = toUserId
         dyMessage.content = textMessage
         dyMessage.status = status
-        dyMessage.createdAt = strTime
         dyMessage.save({ (error) in
             if error != nil {
                 block(nil)
@@ -142,23 +141,26 @@ public class HLConnectionManager {
         let dyMessage = DyMessage(messageId: messageId)
         dyMessage.fetchAndUpdate(status, block: { (error) in
             if error != nil {
-                print("[HL] Can't save message")
+                print("[HL] Can't save message. Error: \(error?.localizedDescription)")
+            } else {
+                print("[HL] Saved message. Id: \(messageId)")
             }
         })
     }
     
     func resendMessagesOnUser(fromUser: HLUser) {
-        DyMessage.fetchAll({ (results) in
-            if let messages = results {
-                let sortedMsgs = messages.sort({
+        HLDynamoDBManager.shared.fetchHistoryMessages(fromUser.id) { (models) in
+            if let messages = models {
+                let sortedMessages = messages.sort({
                     if let m0 = $0 as? DyMessage, let m1 = $1 as? DyMessage {
                         return m0.createdAtDate!.compare(m1.createdAtDate!) == NSComparisonResult.OrderedAscending
                     }
                     return false
                 })
-                for m in sortedMsgs {
+                
+                for m in sortedMessages {
                     let msg = m as! DyMessage
-                    if let s = msg.status, let toUser = msg.toUser {
+                    if let s = msg.status, let toUser = msg.toUserId {
                         if ((s == DyMessageStatus.Unsent || s == DyMessageStatus.Sent) && (toUser == fromUser.id)) {
                             if let publicKeyString = self.publicKeys[fromUser.username] {
                                 let puplicKeyData = NSData(base64EncodedString: publicKeyString, options:NSDataBase64DecodingOptions(rawValue: 0))
@@ -172,14 +174,16 @@ public class HLConnectionManager {
                                         print("[HL] Cannot send message (error JSON): fromUser \(self.currentUser.id), toUser:\(fromUser.id)")
                                     }
                                 } else {
+                                    print("[HL] Error decrypt message (error decrypt): fromUser \(self.currentUser.id), toUser:\(fromUser.id)")
                                 }
                             } else {
+                                print("[HL] Not yet share public key (error JSON): fromUser \(self.currentUser.id), toUser:\(fromUser.id)")
                             }
                         }
                     }
                 }
             }
-        })
+        }
     }
     
     func parseStringToHLMessage(stringValue: String!) -> HLMessagePackage? {
@@ -206,10 +210,15 @@ public class HLConnectionManager {
                         }
                     }
                     
-                    if let callback = self.onReceivedMessage where messagePackage.type == HLMessageType.TalkingMessage {
+                    if let callback = self.onReceivedMessage where messagePackage.type == HLMessageType.ReceivedMessage {
                         if let decryptedString = self.localHeimdall.decrypt(messagePackage.content) {
                             messagePackage.content = decryptedString
-                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Deliveried,block: {(error) -> Void in
+                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Deliveried,block: {(messageId) -> Void in
+                                if messageId != nil {
+                                    print("[HL] Saved message. Id: \(messageId)")
+                                } else {
+                                    print("[HL] Can't save message. Error: \(decryptedString)")
+                                }
                             })
                         }
                         self.sendDeliveriedOnUserChannel(messagePackage.fromUser.username, fromUser: self.currentUser, messageId: messagePackage.messageId)

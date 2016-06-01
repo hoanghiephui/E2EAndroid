@@ -72,31 +72,6 @@ public class HLDynamoDBManager {
             return nil;
         })
     }
-
-    func fetch(model: AWSDynamoDBObjectModel, attributeNameS: String, attributeVauleS: String, tableName: String , withBlock block:HLResultBlock) {
-        let queryInput = AWSDynamoDBQueryInput()
-        let queryValue = AWSDynamoDBAttributeValue()
-        let condition = AWSDynamoDBCondition()
-        
-        queryInput.tableName = tableName
-        condition.comparisonOperator = AWSDynamoDBComparisonOperator.EQ
-        queryValue.S = attributeVauleS
-        condition.attributeValueList = [queryValue]
-        queryInput.keyConditions = [attributeNameS : condition]
-        
-        self.dynamoDB.query(queryInput).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
-            if ((task.error) != nil) {
-                block(nil)
-            } else {
-                if let result = task.result as? AWSDynamoDBQueryOutput where result.items!.count > 0{
-                    block(result.items![0])
-                } else {
-                    block(nil)
-                }
-            }
-            return nil
-        })
-    }
     
     func fetchLimit(resultClass: AnyClass, limit: Int, block:HLResultArrayBlock) {
         let queryExpression = AWSDynamoDBScanExpression()
@@ -121,81 +96,120 @@ public class HLDynamoDBManager {
     func fetchModel(modelClass: AnyClass,  haskKey: String, block:HLResultBlock) {
         self.dynamoMapper.load(modelClass, hashKey: haskKey, rangeKey: nil).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
             if task.error == nil && task.result != nil {
-                let dyMessage = task.result as! DyMessage
-                block(dyMessage)
+                let dyModel = task.result
+                block(dyModel)
             } else {
                     block (nil)
             }
             return nil
         })
     }
-    
+        
     func createContactDBTable(dyUser: DyUser, withBlock block:HLErrorBlock) {
-        
-        let hashKeyAttributeDefinition = AWSDynamoDBAttributeDefinition()
-        hashKeyAttributeDefinition.attributeName = "_ctId"
-        hashKeyAttributeDefinition.attributeType = AWSDynamoDBScalarAttributeType.S
-        
-        let hashKeySchemaElement = AWSDynamoDBKeySchemaElement()
-        hashKeySchemaElement.attributeName = "_ctId"
-        hashKeySchemaElement.keyType = AWSDynamoDBKeyType.Hash
-        
-        let provisionedThroughput = AWSDynamoDBProvisionedThroughput()
-        provisionedThroughput.readCapacityUnits = 2
-        provisionedThroughput.writeCapacityUnits = 2
-        
-        let createTableInput = AWSDynamoDBCreateTableInput()
-        createTableInput.tableName = "HL_" + dyUser.userId! + "_Contact";
-        createTableInput.attributeDefinitions = [hashKeyAttributeDefinition]
-        createTableInput.keySchema = [hashKeySchemaElement]
-        createTableInput.provisionedThroughput = provisionedThroughput
-        
-        self.dynamoDB.createTable(createTableInput).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
-            if let _ = task.result {
-                block(nil)
+        let tableName = "HL_" + dyUser.userId! + "_Contact"
+        self.existTable(tableName) { (error) in
+            if error != nil {
+                let hashKeyAttributeDefinition = AWSDynamoDBAttributeDefinition()
+                hashKeyAttributeDefinition.attributeName = "v_ctId"
+                hashKeyAttributeDefinition.attributeType = AWSDynamoDBScalarAttributeType.S
+                
+                let hashKeySchemaElement = AWSDynamoDBKeySchemaElement()
+                hashKeySchemaElement.attributeName = "v_ctId"
+                hashKeySchemaElement.keyType = AWSDynamoDBKeyType.Hash
+                
+                let provisionedThroughput = AWSDynamoDBProvisionedThroughput()
+                provisionedThroughput.readCapacityUnits = 2
+                provisionedThroughput.writeCapacityUnits = 2
+                
+                let createTableInput = AWSDynamoDBCreateTableInput()
+                createTableInput.tableName = tableName
+                createTableInput.attributeDefinitions = [hashKeyAttributeDefinition]
+                createTableInput.keySchema = [hashKeySchemaElement]
+                createTableInput.provisionedThroughput = provisionedThroughput
+                
+                self.dynamoDB.createTable(createTableInput).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
+                    if let _ = task.result {
+                        block(nil)
+                    } else {
+                        block(task.error)
+                    }
+                    return nil
+                })
             } else {
-                block(task.error)
+                block(nil)
+            }
+        }
+    }
+    
+    func fetchHistoryMessages(contactId: String, block: HLResultArrayBlock) {
+        
+        let scanExpression = AWSDynamoDBScanExpression()
+        scanExpression.limit = 100
+        scanExpression.filterExpression = "v_fromUserId = :fromUserId OR v_toUserId = :toUserId"
+        scanExpression.expressionAttributeValues = [":fromUserId" : contactId, ":toUserId" : contactId]
+        
+        self.dynamoMapper.scan(DyMessage.self, expression: scanExpression).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
+            if (task.error == nil) {
+                if let paginatedOutput = task.result as? AWSDynamoDBPaginatedOutput {
+                    
+                    for anItem in paginatedOutput.items {
+                        let item = anItem as! DyMessage
+                        item.dencrypt()
+                    }
+                    block(paginatedOutput.items)
+                } else {
+                    block(nil)
+                }
+            } else {
+                block(nil)
             }
             return nil
         })
     }
     
     func createMessageDBTable(dyUser: DyUser, withBlock block:HLErrorBlock) {
+        let tableName = "HL_" + dyUser.userId! + "_Message"
         
-        let hashKeyAttributeDefinition = AWSDynamoDBAttributeDefinition()
-        hashKeyAttributeDefinition.attributeName = "_msId"
-        hashKeyAttributeDefinition.attributeType = AWSDynamoDBScalarAttributeType.S
-        
-        let hashKeySchemaElement = AWSDynamoDBKeySchemaElement()
-        hashKeySchemaElement.attributeName = "_msId"
-        hashKeySchemaElement.keyType = AWSDynamoDBKeyType.Hash
-        
-        let provisionedThroughput = AWSDynamoDBProvisionedThroughput()
-        provisionedThroughput.readCapacityUnits = 2
-        provisionedThroughput.writeCapacityUnits = 2
-        
-        let createTableInput = AWSDynamoDBCreateTableInput()
-        createTableInput.tableName = "HL_" + dyUser.userId! + "_Message";
-        createTableInput.attributeDefinitions = [hashKeyAttributeDefinition]
-        createTableInput.keySchema = [hashKeySchemaElement]
-        createTableInput.provisionedThroughput = provisionedThroughput
-        
-        self.dynamoDB.createTable(createTableInput).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
-            if let _ = task.result {
-                block(nil)
+        self.existTable(tableName) { (error) in
+            if error != nil {
+                let hashKeyAttributeDefinition = AWSDynamoDBAttributeDefinition()
+                hashKeyAttributeDefinition.attributeName = "v_id"
+                hashKeyAttributeDefinition.attributeType = AWSDynamoDBScalarAttributeType.S
+                
+                let hashKeySchemaElement = AWSDynamoDBKeySchemaElement()
+                hashKeySchemaElement.attributeName = "v_id"
+                hashKeySchemaElement.keyType = AWSDynamoDBKeyType.Hash
+                
+                let provisionedThroughput = AWSDynamoDBProvisionedThroughput()
+                provisionedThroughput.readCapacityUnits = 2
+                provisionedThroughput.writeCapacityUnits = 2
+                
+                let createTableInput = AWSDynamoDBCreateTableInput()
+                createTableInput.tableName = tableName
+                createTableInput.attributeDefinitions = [hashKeyAttributeDefinition]
+                createTableInput.keySchema = [hashKeySchemaElement]
+                createTableInput.provisionedThroughput = provisionedThroughput
+                
+                self.dynamoDB.createTable(createTableInput).continueWithExecutor(AWSExecutor.mainThreadExecutor(), withBlock: { (task) -> AnyObject? in
+                    if let _ = task.result {
+                        block(nil)
+                    } else {
+                        block(task.error)
+                    }
+                    return nil
+                })
             } else {
-                block(task.error)
+                block(nil)
             }
-            return nil
-        })
+        }
     }
     
     func signUp(username: String, password: String, fullname: String, withBlock block:HLResultBlock) {
         self.existTable(DyUser.dynamoDBTableName(), withBlock: { (error) -> Void in
             if error == nil {
                 let dyUser = DyUser(username: username)
-                self.fetch(dyUser, attributeNameS: "_id", attributeVauleS: dyUser.userId!, tableName: DyUser.dynamoDBTableName(), withBlock: { (item) in
-                    if (item == nil) {
+                self.fetchModel(DyUser.self, haskKey: dyUser.userId!, block: { (model) in
+                    if (model == nil) {
                         if let salt = HLUltils.SaltData {
                             let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt)
                             let randomSalt = HLUltils.generateTagPrefix(8).dataUTF8!
@@ -252,18 +266,20 @@ public class HLDynamoDBManager {
         self.existTable(DyUser.dynamoDBTableName(), withBlock: { (error) -> Void in
             if error == nil {
                 let dyUser = DyUser(username: username)
-                self.fetch(dyUser, attributeNameS: "_id", attributeVauleS: dyUser.userId!, tableName: DyUser.dynamoDBTableName(), withBlock: { (item) in
-                    if let object = item {
+                self.fetchModel(DyUser.self, haskKey: dyUser.userId!, block: { (model) in
+                    if let rawModel = model as? DyUser{
                         let salt = HLUltils.SaltData
                         let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt!)
-                        if  let encryptedKeyK = (object.objectForKey("_keyK") as! AWSDynamoDBAttributeValue).B {
+                        if  let encryptedKeyK = rawModel.keyEncryptedK {
                             do {
                                 let _ = try RNCryptor.decryptData(encryptedKeyK, password: keyQ.base64String!)
                                 let keychain = AWSUICKeyChainStore(service: kKeychainDB)
                                 keychain.setData(keyQ, forKey: dyUser.userId!)
-                                DyUser.currentUser?.fetch({ (obj) in
-                                    block(nil)
-                                })
+                                rawModel.decrypt()
+                                let config = NSUserDefaults.standardUserDefaults();
+                                config.setObject(username, forKey: "username")
+                                DyUser.currentUser?.copyData(rawModel)
+                                block(nil)
                             } catch {
                                 block(NSError(errorMessage: "The password is wrong. Please enter an other"))
                             }

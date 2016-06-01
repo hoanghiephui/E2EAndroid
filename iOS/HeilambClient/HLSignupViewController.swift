@@ -27,8 +27,8 @@ class HLSignupViewController: UIViewController {
             passwordTextField?.text = "1111"
             repaswwordTextField?.text = "1111"
         #else
-            usernameTextField?.text = "ysflyce"
-            fullnameTextField?.text = "Ys Flyce"
+            usernameTextField?.text = "yusuf"
+            fullnameTextField?.text = "Yusuf Saib"
             passwordTextField?.text = "1111"
             repaswwordTextField?.text = "1111"
         #endif

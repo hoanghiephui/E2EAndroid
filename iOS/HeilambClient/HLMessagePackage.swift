@@ -15,7 +15,7 @@ public enum HLMessageType : Int {
     case Unknown
     case BroadcastPublicKey
     case AgreePublicKey
-    case TalkingMessage
+    case ReceivedMessage
     case DeliveredMessage
 }
 
@@ -69,7 +69,7 @@ public class HLMessagePackage {
     required public init (chatUser: HLUser!, content: String!, messageId: String!) {
         self.fromUser = chatUser
         self.messageId = messageId
-        self.type = HLMessageType.TalkingMessage
+        self.type = HLMessageType.ReceivedMessage
         self.content = content
     }
     

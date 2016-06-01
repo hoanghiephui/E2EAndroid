@@ -65,7 +65,6 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
                     let alert = HLUltils.alertController((error?.localizedDescription)!, okTitle: "OK")
                     self.presentViewController(alert, animated: true, completion: nil)
                 }
-                
             })
         }
     }

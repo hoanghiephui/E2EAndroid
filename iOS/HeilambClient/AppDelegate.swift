@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true;
     }
     
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {                
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         if self.initNavigation() == false {
             return false;
         }
@@ -39,7 +39,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if let rvc = self.navigation.viewControllers.first {
             if self.checkHaveEverSignedUp() {
                 DyUser.currentUser?.fetch({ (object) in
-                    rvc.performSegueWithIdentifier("root_to_login", sender: self.navigation);
+                    if (object != nil) {
+                        rvc.performSegueWithIdentifier("root_to_login", sender: self.navigation);
+                    } else {
+                        rvc.performSegueWithIdentifier("root_to_signup", sender: self.navigation);
+                    }
                 })
             } else {
                 rvc.performSegueWithIdentifier("root_to_signup", sender: self.navigation);

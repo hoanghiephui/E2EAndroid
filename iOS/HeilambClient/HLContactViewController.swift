@@ -52,23 +52,25 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     func loadMessagesHistory() {
-        DyMessage.fetchAll { (results) in
-            if let messages = results {
-                let sortedMsgs = messages.sort({
+        HLDynamoDBManager.shared.fetchHistoryMessages(self.opponentUser.id) { (models) in
+            
+            if models != nil {
+                let sortedMessages = models!.sort({
                     if let m0 = $0 as? DyMessage, let m1 = $1 as? DyMessage {
                         return m0.createdAtDate!.compare(m1.createdAtDate!) == NSComparisonResult.OrderedAscending
                     }
                     return false
                 })
-                for m in sortedMsgs {
+                
+                for m in sortedMessages {
                     let dyMsg = m as! DyMessage
-                    if (dyMsg.fromUser == self.opponentUser.id ||
-                        dyMsg.toUser == self.opponentUser.id) {
+                    if (dyMsg.fromUserId == self.opponentUser.id ||
+                        dyMsg.toUserId == self.opponentUser.id) {
                         var sentBy = LGChatMessage.SentBy.User
-                        if (dyMsg.fromUser != DyUser.currentUser?.userId) {
+                        if (dyMsg.fromUserId != DyUser.currentUser?.userId) {
                             sentBy = LGChatMessage.SentBy.Opponent
                         }
-                        
+
                         let lgm = LGChatMessage(content: dyMsg.content!, sentBy: sentBy)
                         self.chatController.appendMessage(lgm)
                     }

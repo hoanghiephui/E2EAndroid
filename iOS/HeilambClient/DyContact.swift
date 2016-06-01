@@ -11,42 +11,42 @@ import AWSDynamoDB
 import RNCryptor
 
 public class DyContact: AWSDynamoDBObjectModel {
-    var _ctId : String?
-    var _ctUsername : NSData?
-    var _ctFullname : NSData?
+    var v_ctId : String?
+    var v_ctUsername : NSData?
+    var v_ctFullname : NSData?
     
     var id : String? {
         get {
-            return _ctId
+            return v_ctId
         }
         set {
-            _ctId = newValue
+            v_ctId = newValue
         }
     }
     
     var username : String? {
         get {
-            return _ctUsername?.stringUTF8
+            return v_ctUsername?.stringUTF8
         }
         set {
-            _ctUsername = newValue?.dataUTF8
+            v_ctUsername = newValue?.dataUTF8
         }
     }
 
     var fullname : String? {
         get {
-            return _ctFullname?.stringUTF8
+            return v_ctFullname?.stringUTF8
         }
         set {
-            _ctFullname = newValue?.dataUTF8
+            v_ctFullname = newValue?.dataUTF8
         }
     }
     
     func clone() -> DyContact {
         let copy = DyContact()
-        copy._ctId = _ctId
-        copy._ctUsername = _ctUsername?.copy() as? NSData
-        copy._ctFullname = _ctFullname?.copy() as? NSData
+        copy.v_ctId = v_ctId
+        copy.v_ctUsername = v_ctUsername?.copy() as? NSData
+        copy.v_ctFullname = v_ctFullname?.copy() as? NSData
         return copy
     }
 
@@ -55,8 +55,8 @@ public class DyContact: AWSDynamoDBObjectModel {
             do {
                 let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
                 if let base64KeyK = decryptedKeyK.base64String {
-                    self._ctUsername = RNCryptor.encryptData(self._ctUsername!, password: base64KeyK)
-                    self._ctFullname = RNCryptor.encryptData(self._ctFullname!, password: base64KeyK)
+                    self.v_ctUsername = RNCryptor.encryptData(self.v_ctUsername!, password: base64KeyK)
+                    self.v_ctFullname = RNCryptor.encryptData(self.v_ctFullname!, password: base64KeyK)
                     return true
                 } else {
                     return false
@@ -73,10 +73,10 @@ public class DyContact: AWSDynamoDBObjectModel {
         if let keyK = DyUser.currentUser!.keyDecryptedK {
             do {
                 if let base64KeyK = keyK.base64String {
-                    let dencryptedUN = try RNCryptor.decryptData(self._ctUsername!, password: base64KeyK)
-                    let dencryptedFN = try RNCryptor.decryptData(self._ctFullname!, password: base64KeyK)
-                    self._ctUsername = dencryptedUN
-                    self._ctFullname = dencryptedFN
+                    let dencryptedUN = try RNCryptor.decryptData(self.v_ctUsername!, password: base64KeyK)
+                    let dencryptedFN = try RNCryptor.decryptData(self.v_ctFullname!, password: base64KeyK)
+                    self.v_ctUsername = dencryptedUN
+                    self.v_ctFullname = dencryptedFN
                     return true
                 } else {
                     return false
@@ -111,7 +111,7 @@ public class DyContact: AWSDynamoDBObjectModel {
     }
     
     class func hashKeyAttribute() -> String {
-        return "_ctId"
+        return "v_ctId"
     }
         
     class func dynamoDBTableName() -> String {

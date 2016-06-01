@@ -18,62 +18,59 @@ public enum DyMessageStatus : Int {
 }
 
 public class DyMessage: AWSDynamoDBObjectModel {
-    var _msId : String?
-    var _fromUser : NSData?
-    var _toUser : NSData?
-    var _content : NSData?
-    var _createAt : NSData?
-    var _status : NSData?
+    var v_id : String?
+    var v_fromUserId : String?
+    var v_toUserId : String?
+    var v_content : NSData?
+    var v_createAt : NSData?
+    var v_status : NSData?
     
     var id : String? {
         get {
-            return _msId
+            return v_id
         }
         set {
-            _msId = newValue
+            v_id = newValue
         }
     }
     
-    var fromUser: String? {
+    var fromUserId: String? {
         get {
-            return _fromUser?.stringUTF8
+            return v_fromUserId
         }
         set {
-            _fromUser = newValue?.dataUTF8
+            v_fromUserId = newValue
         }
     }
     
-    var toUser: String? {
+    var toUserId: String? {
         get {
-            return _toUser?.stringUTF8
+            return v_toUserId
         }
         set {
-            _toUser = newValue?.dataUTF8
+            v_toUserId = newValue
         }
     }
 
     var content: String? {
         get {
-            return _content?.stringUTF8
+            return v_content?.stringUTF8
         }
         set {
-            _content = newValue?.dataUTF8
+            v_content = newValue?.dataUTF8
         }
     }
     
     var createdAt: String? {
         get {
-            return _createAt?.stringUTF8
-        }
-        set {
-            _createAt = newValue?.dataUTF8
+            return v_createAt?.stringUTF8
         }
     }
 
     var status: DyMessageStatus? {
         get {
-            if (_status != nil && _status?.stringUTF8 != nil) {
-                let iv:Int = Int((_status!.stringUTF8)!)!
+            if (v_status != nil && v_status?.stringUTF8 != nil) {
+                let iv:Int = Int((v_status!.stringUTF8)!)!
                 return DyMessageStatus(rawValue: iv)
             } else {
               return DyMessageStatus.Unknown
@@ -81,24 +78,30 @@ public class DyMessage: AWSDynamoDBObjectModel {
         }
         set {
             let sv:String = String(newValue!.rawValue)
-            _status = sv.dataUTF8
+            v_status = sv.dataUTF8
         }
     }
     
     var createdAtDate: NSDate? {
         get {
-            let d = Double((_createAt?.stringUTF8)!)
-            return NSDate(timeIntervalSince1970: d!)
+            let d = NSDate.aws_dateFromString((v_createAt?.stringUTF8)!, format: AWSDateISO8601DateFormat3)
+            return d
         }
     }
     
     required public override init!() {
+        let awsDateString = NSDate().aws_stringValue(AWSDateISO8601DateFormat3)
+        self.v_id = HLUltils.uniqueFromString(awsDateString)
+        self.v_createAt = awsDateString.dataUTF8
+        
         super.init()
     }
     
     required public init!(messageId: String!) {
         super.init()
-        self._msId = messageId
+        let awsDateString = NSDate().aws_stringValue(AWSDateISO8601DateFormat3)
+        self.v_id = messageId
+        self.v_createAt = awsDateString.dataUTF8
     }
     
     required public init!(coder: NSCoder!) {
@@ -110,22 +113,22 @@ public class DyMessage: AWSDynamoDBObjectModel {
     }
     
     func clone() -> DyMessage {
-        let copy = DyMessage(messageId: _msId)
-        copy._fromUser = _fromUser?.copy() as? NSData
-        copy._toUser = _toUser?.copy() as? NSData
-        copy._content = _content?.copy() as? NSData
-        copy._status = _status?.copy() as? NSData
-        copy._createAt = _createAt?.copy() as? NSData
+        let copy = DyMessage(messageId: v_id)
+        copy.v_fromUserId = v_fromUserId?.copy() as? String
+        copy.v_toUserId = v_toUserId?.copy() as? String
+        copy.v_content = v_content?.copy() as? NSData
+        copy.v_status = v_status?.copy() as? NSData
+        copy.v_createAt = v_createAt?.copy() as? NSData
         return copy
     }
     
     func copyData(other : DyMessage) {
-        self._msId = other._msId
-        self._fromUser = other._fromUser?.copy() as? NSData
-        self._toUser = other._toUser?.copy() as? NSData
-        self._content = other._content?.copy() as? NSData
-        self._status = other._status?.copy() as? NSData
-        self._createAt = other._createAt?.copy() as? NSData
+        self.v_id = other.v_id
+        self.v_fromUserId = other.v_fromUserId?.copy() as? String
+        self.v_toUserId = other.v_toUserId?.copy() as? String
+        self.v_content = other.v_content?.copy() as? NSData
+        self.v_status = other.v_status?.copy() as? NSData
+        self.v_createAt = other.v_createAt?.copy() as? NSData
     }
     
     func encrypt() -> Bool {
@@ -133,11 +136,9 @@ public class DyMessage: AWSDynamoDBObjectModel {
             do {
                 let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
                 if let base64KeyK = decryptedKeyK.base64String {
-                    self._fromUser = RNCryptor.encryptData(self._fromUser!, password: base64KeyK)
-                    self._toUser = RNCryptor.encryptData(self._toUser!, password: base64KeyK)
-                    self._content = RNCryptor.encryptData(self._content!, password: base64KeyK)
-                    self._status = RNCryptor.encryptData(self._status!, password: base64KeyK)
-                    self._createAt = RNCryptor.encryptData(self._createAt!, password: base64KeyK)
+                    self.v_content = RNCryptor.encryptData(self.v_content!, password: base64KeyK)
+                    self.v_status = RNCryptor.encryptData(self.v_status!, password: base64KeyK)
+                    self.v_createAt = RNCryptor.encryptData(self.v_createAt!, password: base64KeyK)
                     return true
                 } else {
                     return false
@@ -154,16 +155,12 @@ public class DyMessage: AWSDynamoDBObjectModel {
         if let keyK = DyUser.currentUser!.keyDecryptedK {
             do {
                 if let base64KeyK = keyK.base64String {
-                    let dencryptedFUI = try RNCryptor.decryptData(self._fromUser!, password: base64KeyK)
-                    let dencryptedTUI = try RNCryptor.decryptData(self._toUser!, password: base64KeyK)
-                    let dencryptedCTE = try RNCryptor.decryptData(self._content!, password: base64KeyK)
-                    let dencryptedSTU = try RNCryptor.decryptData(self._status!, password: base64KeyK)
-                    let dencryptedCRT = try RNCryptor.decryptData(self._createAt!, password: base64KeyK)
-                    self._fromUser = dencryptedFUI
-                    self._toUser = dencryptedTUI
-                    self._content = dencryptedCTE
-                    self._status = dencryptedSTU
-                    self._createAt = dencryptedCRT
+                    let dencryptedCTE = try RNCryptor.decryptData(self.v_content!, password: base64KeyK)
+                    let dencryptedSTU = try RNCryptor.decryptData(self.v_status!, password: base64KeyK)
+                    let dencryptedCRT = try RNCryptor.decryptData(self.v_createAt!, password: base64KeyK)
+                    self.v_content = dencryptedCTE
+                    self.v_status = dencryptedSTU
+                    self.v_createAt = dencryptedCRT
                     return true
                 } else {
                     return false
@@ -192,7 +189,7 @@ public class DyMessage: AWSDynamoDBObjectModel {
                     let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
                     if let base64KeyK = decryptedKeyK.base64String {
                         dyMsg.status = status
-                        dyMsg._status = RNCryptor.encryptData(dyMsg._status!, password: base64KeyK)
+                        dyMsg.v_status = RNCryptor.encryptData(dyMsg.v_status!, password: base64KeyK)
                         self.copyData(dyMsg)
                         HLDynamoDBManager.shared.save(dyMsg, withBlock: { (error) in
                             block(error)
@@ -224,7 +221,7 @@ public class DyMessage: AWSDynamoDBObjectModel {
     }
     
     class func hashKeyAttribute() -> String {
-        return "_msId"
+        return "v_id"
     }
     
     class func dynamoDBTableName() -> String {
@@ -232,6 +229,6 @@ public class DyMessage: AWSDynamoDBObjectModel {
     }
     
     class func ignoreAttributes() -> [String] {
-        return ["id", "fromUser", "toUser", "content", "createdAt", "status"]
+        return ["id", "fromUserId", "toUserId", "content", "createdAt", "status"]
     }
 }
