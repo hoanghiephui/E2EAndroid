@@ -17,6 +17,8 @@ public class DyUser: AWSDynamoDBObjectModel {
     var v_username: NSData?
     var v_fullname: NSData?
     var v_keyK: NSData?
+    var v_privateKey : NSData?
+    var v_publicKey : NSData?
     
     var _isDirty : Bool?
     
@@ -83,6 +85,30 @@ public class DyUser: AWSDynamoDBObjectModel {
         }
     }
     
+    var privateKey : NSData? {
+        get {
+            return v_privateKey
+        }
+        set {
+            v_privateKey = newValue
+        }
+    }
+    
+    var publicKey : NSData? {
+        get {
+            return v_publicKey
+        }
+        set {
+            v_publicKey = newValue
+        }
+    }
+    
+    var onceTagPrefix: String {
+        get {
+            return "com.heilamb." + v_id!
+        }
+    }
+    
     class var currentUser: DyUser? {
         struct Static {
             static var instance: DyUser? = nil
@@ -124,7 +150,7 @@ public class DyUser: AWSDynamoDBObjectModel {
     }
     
     class func ignoreAttributes() -> [String] {
-        return ["keyEncryptedK", "keyDecryptedK", "base64KeyQ", "username", "fullname", "_isDirty", "isDirty"]
+        return ["keyEncryptedK", "keyDecryptedK", "base64KeyQ", "username", "fullname", "_isDirty", "isDirty", "privateKey", "publicKey"]
     }
 
     func clone() -> DyUser {
@@ -133,6 +159,8 @@ public class DyUser: AWSDynamoDBObjectModel {
         copy.v_username = v_username?.copy() as? NSData
         copy.v_fullname = v_fullname?.copy() as? NSData
         copy.v_keyK = v_keyK?.copy() as? NSData
+        copy.v_privateKey = v_privateKey?.copy() as? NSData
+        copy.v_publicKey = v_publicKey?.copy() as? NSData
         return copy
     }
     
@@ -141,6 +169,8 @@ public class DyUser: AWSDynamoDBObjectModel {
         self.v_username = other.v_username?.copy() as? NSData
         self.v_fullname = other.v_fullname?.copy() as? NSData
         self.v_keyK = other.v_keyK?.copy() as? NSData
+        self.v_privateKey = other.privateKey?.copy() as? NSData
+        self.v_publicKey = other.v_publicKey?.copy() as? NSData
     }
     
     func encrypt() -> Bool {
@@ -150,6 +180,9 @@ public class DyUser: AWSDynamoDBObjectModel {
                 if let base64KeyK = decryptedKeyK.base64String {
                     self.v_username = RNCryptor.encryptData(self.v_username!, password: base64KeyK)
                     self.v_fullname = RNCryptor.encryptData(self.v_fullname!, password: base64KeyK)
+                    self.v_privateKey = RNCryptor.encryptData(self.v_privateKey!, password: base64KeyK)
+                    self.v_publicKey = RNCryptor.encryptData(self.v_publicKey!, password: base64KeyK)
+                    self
                     return true
                 } else {
                     return false
@@ -169,8 +202,12 @@ public class DyUser: AWSDynamoDBObjectModel {
                 if let base64KeyK = decryptedKeyK.base64String {
                     let dencryptedUN = try RNCryptor.decryptData(self.v_username!, password: base64KeyK)
                     let dencryptedFN = try RNCryptor.decryptData(self.v_fullname!, password: base64KeyK)
+                    let dencryptedPR = try RNCryptor.decryptData(self.v_privateKey!, password: base64KeyK)
+                    let dencryptedPU = try RNCryptor.decryptData(self.v_publicKey!, password: base64KeyK)
                     self.v_username = dencryptedUN
                     self.v_fullname = dencryptedFN
+                    self.v_privateKey = dencryptedPR
+                    self.v_publicKey = dencryptedPU
                     return true
                 } else {
                     return false

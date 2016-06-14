@@ -21,7 +21,7 @@ public class HLConnectionManager {
     var iotDataManager: AWSIoTDataManager!
     var connected: Bool!
     var publicKeys : [String: String]!
-    var localHeimdall : Heimdall!
+    var localHeimdall : Heimdall?
     
     var currentUser : HLUser!
     public var onReceivedMessage: ((HLMessagePackage?) -> ())?
@@ -51,8 +51,11 @@ public class HLConnectionManager {
         onReceivedMessage = nil
         onHandshakeMessage = nil
         publicKeys = [:]
-        
-        localHeimdall = Heimdall(tagPrefix: HLUltils.generateTagPrefix(12), keySize: 2048)
+    }
+    
+    public func setupHeimdall() -> Bool {
+        localHeimdall = Heimdall(tagPrefix: (DyUser.currentUser?.onceTagPrefix)!, publicKeyData: DyUser.currentUser?.publicKey, privateData: DyUser.currentUser?.privateKey)
+        return localHeimdall != nil
     }
     
     public func connectWithUser(user: HLUser!, statusCallback callback: ((Bool) -> Void)!) {
@@ -211,7 +214,7 @@ public class HLConnectionManager {
                     }
                     
                     if let callback = self.onReceivedMessage where messagePackage.type == HLMessageType.ReceivedMessage {
-                        if let decryptedString = self.localHeimdall.decrypt(messagePackage.content) {
+                        if let decryptedString = self.localHeimdall?.decrypt(messagePackage.content) {
                             messagePackage.content = decryptedString
                             self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Deliveried,block: {(messageId) -> Void in
                                 if messageId != nil {
@@ -254,8 +257,8 @@ public class HLConnectionManager {
     }
     
     func sendBroadcastPublicKeyOnHandshakeChannel() {
-        let publicKeyData = self.localHeimdall.publicKeyDataX509()!
-        let publicKeyString = publicKeyData.base64EncodedStringWithOptions([])
+        let publicKeyData = self.localHeimdall?.publicKeyDataX509()!
+        let publicKeyString = publicKeyData?.base64EncodedStringWithOptions([])
         let messagePackage = HLMessagePackage(broadcastUser: self.currentUser, content: publicKeyString)
         
         if let jsonObject = messagePackage.jsonObject() {
@@ -265,8 +268,8 @@ public class HLConnectionManager {
     }
 
     func sendAgreePublicKeyOnUserChannel(theUser: HLUser!) {
-        let publicKeyData = self.localHeimdall.publicKeyDataX509()!
-        let publicKeyString = publicKeyData.base64EncodedStringWithOptions([])
+        let publicKeyData = self.localHeimdall?.publicKeyDataX509()!
+        let publicKeyString = publicKeyData?.base64EncodedStringWithOptions([])
         let messagePackage = HLMessagePackage(agreeUser: self.currentUser, content: publicKeyString)
         
         if let jsonObject = messagePackage.jsonObject() {

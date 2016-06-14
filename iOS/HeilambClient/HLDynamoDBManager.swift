@@ -9,6 +9,7 @@
 import Foundation
 import AWSDynamoDB
 import RNCryptor
+import Heimdall
 
 let kDynamoDBKey = "kDynamoDBKey"
 let kDynamoMapperKey = "kDynamoMapperKey"
@@ -215,12 +216,15 @@ public class HLDynamoDBManager {
                             let randomSalt = HLUltils.generateTagPrefix(8).dataUTF8!
                             let keyK = RNCryptor.FormatV3.keyForPassword(password, salt: randomSalt)
                             let keyEncryptedK = RNCryptor.encryptData(keyK, password: keyQ.base64String!)
+                            let localHeimdall = Heimdall(tagPrefix: dyUser.onceTagPrefix, keySize: 2048)
                             
                             let keychain = AWSUICKeyChainStore(service: kKeychainDB)
                             keychain.setData(keyQ, forKey: dyUser.userId!)
                             
                             dyUser.keyEncryptedK = keyEncryptedK
                             dyUser.fullname = fullname
+                            dyUser.privateKey = localHeimdall?.privateKeyData()
+                            dyUser.publicKey = localHeimdall?.publicKeyDataX509()
                             dyUser.save({ (error) in
                                 if (error != nil) {
                                     keychain.removeItemForKey(dyUser.userId!)

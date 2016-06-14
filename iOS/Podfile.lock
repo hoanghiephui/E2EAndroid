@@ -18,8 +18,17 @@ DEPENDENCIES:
   - AWSIoT
   - AWSLambda
   - Hashids-Swift (~> 0.3.0)
-  - Heimdall (~> 1.0.0)
+  - Heimdall (from `https://github.com/sinbadflyce/Heimdall.git`)
   - RNCryptor (~> 4.0.0)
+
+EXTERNAL SOURCES:
+  Heimdall:
+    :git: https://github.com/sinbadflyce/Heimdall.git
+
+CHECKOUT OPTIONS:
+  Heimdall:
+    :commit: 30356a6a10f767b132b7a95a47496dbb86ca1580
+    :git: https://github.com/sinbadflyce/Heimdall.git
 
 SPEC CHECKSUMS:
   AWSCognito: 87cf3dadb17eed732c1c3fe21624fa8f15ef84ec
