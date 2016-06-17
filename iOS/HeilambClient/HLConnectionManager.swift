@@ -11,11 +11,12 @@ import AWSCore
 import AWSIoT
 import Heimdall
 import RNCryptor
+import BluetoothKit
 
 let kHandshakeChannel = "kHandshakeChannel"
 let kPrefixHeimdall = "com.sinbadflyce.aws.e2ee.chat"
 
-public class HLConnectionManager {
+public class HLConnectionManager : HLBleShareKeyDelegate {
     let credentialProvider : AWSCognitoCredentialsProvider;
     
     var iotDataManager: AWSIoTDataManager!
@@ -324,6 +325,34 @@ public class HLConnectionManager {
         let delayTime = dispatch_time( DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC)))
         dispatch_after( delayTime, dispatch_get_main_queue()) {
             self.sendBroadcastPublicKeyOnHandshakeChannel()
+            HLBleShareKey.shared.delegate = self
+            HLBleShareKey.shared.start()
         }
+    }
+    
+    public func shareKey(shareKey: HLBleShareKey, canSendDatafromCentral fromCentral: BKCentral, toPeripheral: BKRemotePeripheral) {
+        let publicKeyData = self.localHeimdall?.publicKeyDataX509()!
+        let publicKeyString = publicKeyData?.base64EncodedStringWithOptions([])
+        let messagePackage = HLMessagePackage(broadcastUser: self.currentUser, content: publicKeyString)
+        
+        if let jsonObject = messagePackage.jsonObject() {
+            let jsonString = JSON(jsonObject).toString()
+            if let packData = jsonString.dataUTF8 {
+                fromCentral.sendData(packData, toRemotePeer: toPeripheral, completionHandler: { (data, remotePeer, error) in
+                    if error == nil {
+                        print("[BLE] sent public key to ble peer");
+                    }
+                })
+            }
+        }
+    }
+    
+    public func shareKey(shareKey: HLBleShareKey, didReceivedPublicKey messagePackage: HLMessagePackage) {
+        if (self.currentUser.isNotMe(messagePackage.fromUser)) {
+            self.publicKeys[messagePackage.fromUser.username] = messagePackage.content
+        }
+    }
+    
+    public func shareKey(shareKey: HLBleShareKey, didSendDatafromCentral fromCentral: BKCentral, toPeripheral: BKRemotePeripheral, error: NSError?) {
     }
 }

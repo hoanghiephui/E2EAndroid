@@ -1,13 +1,14 @@
 PODS:
-  - AWSCognito (2.4.2):
-    - AWSCore (= 2.4.2)
-  - AWSCore (2.4.2)
-  - AWSDynamoDB (2.4.2):
-    - AWSCore (= 2.4.2)
-  - AWSIoT (2.4.2):
-    - AWSCore (= 2.4.2)
-  - AWSLambda (2.4.2):
-    - AWSCore (= 2.4.2)
+  - AWSCognito (2.4.3):
+    - AWSCore (= 2.4.3)
+  - AWSCore (2.4.3)
+  - AWSDynamoDB (2.4.3):
+    - AWSCore (= 2.4.3)
+  - AWSIoT (2.4.3):
+    - AWSCore (= 2.4.3)
+  - AWSLambda (2.4.3):
+    - AWSCore (= 2.4.3)
+  - BluetoothKit (0.3.0)
   - Hashids-Swift (0.3.0)
   - Heimdall (1.0.0)
   - RNCryptor (4.0.0)
@@ -17,6 +18,7 @@ DEPENDENCIES:
   - AWSDynamoDB
   - AWSIoT
   - AWSLambda
+  - BluetoothKit (~> 0.3.0)
   - Hashids-Swift (~> 0.3.0)
   - Heimdall (from `https://github.com/sinbadflyce/Heimdall.git`)
   - RNCryptor (~> 4.0.0)
@@ -27,17 +29,20 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   Heimdall:
-    :commit: 30356a6a10f767b132b7a95a47496dbb86ca1580
+    :commit: 717c9e2e6a7377b7501c23e76696686744bab0f0
     :git: https://github.com/sinbadflyce/Heimdall.git
 
 SPEC CHECKSUMS:
-  AWSCognito: 87cf3dadb17eed732c1c3fe21624fa8f15ef84ec
-  AWSCore: 08cc4318682a518ad73e452900336ba54e823e03
-  AWSDynamoDB: 604d26f6f13275bac9a0fec2c0194bf1593fd2fd
-  AWSIoT: 6b5aebd81920059590c7e664faae90c5e6ad4977
-  AWSLambda: 5afb17589e279a78c462c5dae671a8a5e39d05aa
+  AWSCognito: 9a83fcecccd8b9efaa82fec7722ee2a4c723b0fe
+  AWSCore: 1b1edbf65f948804c9d522f1c49e29f51f72c6d8
+  AWSDynamoDB: 50d4c3abc823f93b0cdc16ca5041996b9294d057
+  AWSIoT: 8eac54afd626141ec2ae17f3002b8ea6889d8ee0
+  AWSLambda: 26951192989fc68625134e4d856e23fede7cd755
+  BluetoothKit: 23c4e2ef6a0beeda7e50647b0eb3496f40d90ad2
   Hashids-Swift: 5d7c069b0d4a3b70d4e2a840c420115dd517050d
   Heimdall: 15b1b23a07213f02808fe0ef6007daf1c563d4e7
   RNCryptor: 59d6483908115af5c12b884db23392024e52a5fe
 
-COCOAPODS: 0.38.2
+PODFILE CHECKSUM: 89f1c5c15a0be93ae917d1485decd5f5e9223342
+
+COCOAPODS: 1.0.1

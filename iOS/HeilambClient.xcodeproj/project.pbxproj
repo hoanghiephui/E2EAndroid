@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7C7BD557DB773F379EBD9861 /* Pods_HeilambClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 111EA566AAF7AACABDFB3525 /* Pods_HeilambClient.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		9EAF2C54CBFEAB35F448765C /* Pods_HeilambClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F48AA1B60A51575A3A7053FD /* Pods_HeilambClient.framework */; };
 		E537F4DD1CE4CD3200775DEF /* json.swift in Sources */ = {isa = PBXBuildFile; fileRef = E537F4DC1CE4CD3200775DEF /* json.swift */; };
 		E5479E7D1CEC5E45008F5A76 /* HLContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */; };
+		E54E6B601D13FAFE002A0D9E /* HLBleShareKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54E6B5F1D13FAFE002A0D9E /* HLBleShareKey.swift */; };
 		E55D470D1CFBEC4100178074 /* DyContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55D470C1CFBEC4100178074 /* DyContact.swift */; };
 		E55D470F1CFBEE5800178074 /* DyMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55D470E1CFBEE5800178074 /* DyMessage.swift */; };
 		E564B9DF1CF6A68600486517 /* DyUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E564B9DE1CF6A68600486517 /* DyUser.swift */; };
@@ -30,11 +31,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		111EA566AAF7AACABDFB3525 /* Pods_HeilambClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HeilambClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		399FC55DD6091F06726DDF97 /* Pods-HeilambClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.debug.xcconfig"; sourceTree = "<group>"; };
-		7AA03D05CE7CF064222FEAAA /* Pods-HeilambClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.release.xcconfig"; sourceTree = "<group>"; };
+		53E3878ABDB74C5ACDE30456 /* Pods-HeilambClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.debug.xcconfig"; sourceTree = "<group>"; };
+		AEC1C667F757D867F49341A1 /* Pods-HeilambClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HeilambClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient.release.xcconfig"; sourceTree = "<group>"; };
 		E537F4DC1CE4CD3200775DEF /* json.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = json.swift; sourceTree = "<group>"; };
 		E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLContactViewController.swift; sourceTree = "<group>"; };
+		E54E6B5F1D13FAFE002A0D9E /* HLBleShareKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLBleShareKey.swift; sourceTree = "<group>"; };
 		E55D470C1CFBEC4100178074 /* DyContact.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyContact.swift; sourceTree = "<group>"; };
 		E55D470E1CFBEE5800178074 /* DyMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyMessage.swift; sourceTree = "<group>"; };
 		E564B9DE1CF6A68600486517 /* DyUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyUser.swift; sourceTree = "<group>"; };
@@ -54,6 +55,7 @@
 		E5F98EC51CE490F300056341 /* LGSimpleChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LGSimpleChat.swift; sourceTree = "<group>"; };
 		E5F98EC71CE4919400056341 /* awsiot-identity.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "awsiot-identity.p12"; sourceTree = "<group>"; };
 		E5F98ECB1CE492D900056341 /* HLConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLConstants.swift; sourceTree = "<group>"; };
+		F48AA1B60A51575A3A7053FD /* Pods_HeilambClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HeilambClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,26 +63,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7C7BD557DB773F379EBD9861 /* Pods_HeilambClient.framework in Frameworks */,
+				9EAF2C54CBFEAB35F448765C /* Pods_HeilambClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		24D1A3C145EA3A38C9AC33E3 /* Pods */ = {
+		303AA0B4524DD56083B762B3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				399FC55DD6091F06726DDF97 /* Pods-HeilambClient.debug.xcconfig */,
-				7AA03D05CE7CF064222FEAAA /* Pods-HeilambClient.release.xcconfig */,
+				53E3878ABDB74C5ACDE30456 /* Pods-HeilambClient.debug.xcconfig */,
+				AEC1C667F757D867F49341A1 /* Pods-HeilambClient.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		C16F18E4FA294F742063D808 /* Frameworks */ = {
+		A035A41E0FE01D685F6E941D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				111EA566AAF7AACABDFB3525 /* Pods_HeilambClient.framework */,
+				F48AA1B60A51575A3A7053FD /* Pods_HeilambClient.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -118,14 +120,22 @@
 			name = SMS;
 			sourceTree = "<group>";
 		};
+		E54E6B5E1D13FAD4002A0D9E /* BLE */ = {
+			isa = PBXGroup;
+			children = (
+				E54E6B5F1D13FAFE002A0D9E /* HLBleShareKey.swift */,
+			);
+			name = BLE;
+			sourceTree = "<group>";
+		};
 		E5659F0E1CE313510071CD8A = {
 			isa = PBXGroup;
 			children = (
 				E5F98EC41CE490CF00056341 /* Others */,
 				E5659F191CE313510071CD8A /* HeilambClient */,
 				E5659F181CE313510071CD8A /* Products */,
-				24D1A3C145EA3A38C9AC33E3 /* Pods */,
-				C16F18E4FA294F742063D808 /* Frameworks */,
+				303AA0B4524DD56083B762B3 /* Pods */,
+				A035A41E0FE01D685F6E941D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -140,6 +150,7 @@
 		E5659F191CE313510071CD8A /* HeilambClient */ = {
 			isa = PBXGroup;
 			children = (
+				E54E6B5E1D13FAD4002A0D9E /* BLE */,
 				E52FB7D91CF0AFAF002A6EBB /* DyDB */,
 				E5479E7F1CEC5E5A008F5A76 /* SMS */,
 				E5479E7E1CEC5E50008F5A76 /* Controllers */,
@@ -169,12 +180,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E5659F291CE313510071CD8A /* Build configuration list for PBXNativeTarget "HeilambClient" */;
 			buildPhases = (
-				429982B2AC8B1482D41224A6 /* Check Pods Manifest.lock */,
+				27951F4534A4718DD1E90B5F /* [CP] Check Pods Manifest.lock */,
 				E5659F131CE313510071CD8A /* Sources */,
 				E5659F141CE313510071CD8A /* Frameworks */,
 				E5659F151CE313510071CD8A /* Resources */,
-				6180267E655AD73397F5B194 /* Embed Pods Frameworks */,
-				CEF5318A5EE556239CB28933 /* Copy Pods Resources */,
+				BC4CE2B3DA20721FCA72867A /* [CP] Embed Pods Frameworks */,
+				DB6A1EA9A7FAF4B4C261F131 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -233,14 +244,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		429982B2AC8B1482D41224A6 /* Check Pods Manifest.lock */ = {
+		27951F4534A4718DD1E90B5F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,14 +259,14 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		6180267E655AD73397F5B194 /* Embed Pods Frameworks */ = {
+		BC4CE2B3DA20721FCA72867A /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,14 +274,14 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HeilambClient/Pods-HeilambClient-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CEF5318A5EE556239CB28933 /* Copy Pods Resources */ = {
+		DB6A1EA9A7FAF4B4C261F131 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -286,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E564B9E11CF70E3800486517 /* HLDynamoDBManager.swift in Sources */,
+				E54E6B601D13FAFE002A0D9E /* HLBleShareKey.swift in Sources */,
 				E5B4E2441CEC145300BE9E50 /* HLMessagePackage.swift in Sources */,
 				E5F98ECC1CE492D900056341 /* HLConstants.swift in Sources */,
 				E5B4E25D1CEC46C900BE9E50 /* HLUltils.swift in Sources */,
@@ -410,7 +422,7 @@
 		};
 		E5659F2A1CE313510071CD8A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 399FC55DD6091F06726DDF97 /* Pods-HeilambClient.debug.xcconfig */;
+			baseConfigurationReference = 53E3878ABDB74C5ACDE30456 /* Pods-HeilambClient.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = HeilambClient/Info.plist;
@@ -422,7 +434,7 @@
 		};
 		E5659F2B1CE313510071CD8A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AA03D05CE7CF064222FEAAA /* Pods-HeilambClient.release.xcconfig */;
+			baseConfigurationReference = AEC1C667F757D867F49341A1 /* Pods-HeilambClient.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = HeilambClient/Info.plist;

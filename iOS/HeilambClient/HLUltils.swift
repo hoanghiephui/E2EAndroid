@@ -55,6 +55,14 @@ public class HLUltils {
         alert.addAction(OKAction)
         return alert
     }
+    
+    class func executeDelay(inSecond: Double, block: () -> Void)  {
+        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(inSecond * Double(NSEC_PER_SEC)))
+        dispatch_after(delayTime, dispatch_get_main_queue()) {
+            block()
+        }
+    }
+
 }
 
 
