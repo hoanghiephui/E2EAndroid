@@ -73,7 +73,12 @@ class HLSignupViewController: UIViewController {
                     let alert = HLUltils.alertController((err.localizedDescription)!, okTitle: "OK")
                     self.presentViewController(alert, animated: true, completion: nil)
                 } else {
-                    self.performSegueWithIdentifier("signup_to_contact", sender: self)
+                    if HLConnectionManager.shared.setupHeimdall() == false {
+                        let alert = HLUltils.alertController("Failure to setup the keys", okTitle: "OK")
+                        self.presentViewController(alert, animated: true, completion: nil)
+                    } else {
+                        self.performSegueWithIdentifier("signup_to_contact", sender: self)
+                    }
                 }
             });
         }

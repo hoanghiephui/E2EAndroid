@@ -117,7 +117,8 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
         let dyContact = DyContact()
         dyContact.id = messagePackage.fromUser.id
         dyContact.username = messagePackage.fromUser.username
-        dyContact.fullname = messagePackage.fromUser.fullname        
+        dyContact.fullname = messagePackage.fromUser.fullname
+        dyContact.publicKey = messagePackage.content!.dataUTF8
         dyContact.save { (error) in
             if error != nil {
                 print(error?.localizedDescription)

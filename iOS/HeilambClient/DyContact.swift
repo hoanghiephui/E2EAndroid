@@ -14,6 +14,7 @@ public class DyContact: AWSDynamoDBObjectModel {
     var v_ctId : String?
     var v_ctUsername : NSData?
     var v_ctFullname : NSData?
+    var v_ctPublicKey : NSData?
     
     var id : String? {
         get {
@@ -42,11 +43,21 @@ public class DyContact: AWSDynamoDBObjectModel {
         }
     }
     
+    var publicKey : NSData? {
+        get {
+            return v_ctPublicKey
+        }
+        set {
+            v_ctPublicKey = newValue
+        }
+    }
+    
     func clone() -> DyContact {
         let copy = DyContact()
         copy.v_ctId = v_ctId
         copy.v_ctUsername = v_ctUsername?.copy() as? NSData
         copy.v_ctFullname = v_ctFullname?.copy() as? NSData
+        copy.v_ctPublicKey = v_ctPublicKey?.copy() as? NSData
         return copy
     }
 
@@ -57,6 +68,9 @@ public class DyContact: AWSDynamoDBObjectModel {
                 if let base64KeyK = decryptedKeyK.base64String {
                     self.v_ctUsername = RNCryptor.encryptData(self.v_ctUsername!, password: base64KeyK)
                     self.v_ctFullname = RNCryptor.encryptData(self.v_ctFullname!, password: base64KeyK)
+                    if let pdk = self.v_ctPublicKey {
+                        self.v_ctPublicKey = RNCryptor.encryptData(pdk, password: base64KeyK)
+                    }
                     return true
                 } else {
                     return false
@@ -77,6 +91,11 @@ public class DyContact: AWSDynamoDBObjectModel {
                     let dencryptedFN = try RNCryptor.decryptData(self.v_ctFullname!, password: base64KeyK)
                     self.v_ctUsername = dencryptedUN
                     self.v_ctFullname = dencryptedFN
+                    
+                    if let pkd = self.v_ctPublicKey {
+                        let dencryptedPK = try? RNCryptor.decryptData(pkd, password: base64KeyK)
+                        self.v_ctPublicKey = dencryptedPK
+                    }
                     return true
                 } else {
                     return false
@@ -119,7 +138,7 @@ public class DyContact: AWSDynamoDBObjectModel {
     }
     
     class func ignoreAttributes() -> [String] {
-        return ["id", "username", "fullname"]
+        return ["id", "username", "fullname", "publicKey"]
     }
     
 }
