@@ -12,9 +12,14 @@ import Hashids_Swift
 public class HLUltils {
     
     public static let kSalt = "HL-SALT"
+    public static let kRSATag = "com.yusuf.e2e"
     
     class var SaltData : NSData? {
         return HLUltils.kSalt.dataUsingEncoding(NSUTF8StringEncoding);
+    }
+    
+    class var RsaTag : NSData {
+        return kRSATag.dataUTF8!
     }
     
     class func convertStringToDictionary(text: String) -> [String:AnyObject]? {
@@ -72,6 +77,12 @@ public extension String {
             return self.dataUsingEncoding(NSUTF8StringEncoding)
         }
     }
+    
+    var dataBase64 : NSData? {
+        get {
+            return NSData(base64EncodedString: self, options:NSDataBase64DecodingOptions(rawValue: 0))
+        }
+    }
 }
 
 public extension NSData {
@@ -81,7 +92,7 @@ public extension NSData {
         }
     }
     
-    var base64String : String? {
+    var stringBase64 : String? {
         get {
             return self.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(rawValue: 0))
         }

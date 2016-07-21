@@ -65,7 +65,7 @@ public class DyContact: AWSDynamoDBObjectModel {
         if let base64KeyQ = DyUser.currentUser!.base64KeyQ {
             do {
                 let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
-                if let base64KeyK = decryptedKeyK.base64String {
+                if let base64KeyK = decryptedKeyK.stringBase64 {
                     self.v_ctUsername = RNCryptor.encryptData(self.v_ctUsername!, password: base64KeyK)
                     self.v_ctFullname = RNCryptor.encryptData(self.v_ctFullname!, password: base64KeyK)
                     if let pdk = self.v_ctPublicKey {
@@ -86,7 +86,7 @@ public class DyContact: AWSDynamoDBObjectModel {
     func dencrypt() -> Bool {
         if let keyK = DyUser.currentUser!.keyDecryptedK {
             do {
-                if let base64KeyK = keyK.base64String {
+                if let base64KeyK = keyK.stringBase64 {
                     let dencryptedUN = try RNCryptor.decryptData(self.v_ctUsername!, password: base64KeyK)
                     let dencryptedFN = try RNCryptor.decryptData(self.v_ctFullname!, password: base64KeyK)
                     self.v_ctUsername = dencryptedUN

@@ -9,9 +9,9 @@
 import Foundation
 import AWSCore
 import AWSIoT
-import Heimdall
 import RNCryptor
 import BluetoothKit
+import SwCrypt
 
 let kHandshakeChannel = "kHandshakeChannel"
 let kPrefixHeimdall = "com.sinbadflyce.aws.e2ee.chat"
@@ -22,7 +22,7 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
     var iotDataManager: AWSIoTDataManager!
     var connected: Bool!
     var publicKeys : [String: String]!
-    var localHeimdall : Heimdall?
+    
     
     var currentUser : HLUser!
     public var onReceivedMessage: ((HLMessagePackage?) -> ())?
@@ -52,11 +52,6 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
         onReceivedMessage = nil
         onHandshakeMessage = nil
         publicKeys = [:]
-    }
-    
-    public func setupHeimdall() -> Bool {
-        localHeimdall = Heimdall(tagPrefix: (DyUser.currentUser?.onceTagPrefix)!, publicKeyData: DyUser.currentUser?.publicKey, privateData: DyUser.currentUser?.privateKey)
-        return localHeimdall != nil
     }
     
     public func connectWithUser(user: HLUser!, statusCallback callback: ((Bool) -> Void)!) {
@@ -168,10 +163,9 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
                     if let s = msg.status, let toUser = msg.toUserId {
                         if ((s == DyMessageStatus.Unsent || s == DyMessageStatus.Sent) && (toUser == fromUser.id)) {
                             if let publicKeyString = self.publicKeys[fromUser.username] {
-                                let puplicKeyData = NSData(base64EncodedString: publicKeyString, options:NSDataBase64DecodingOptions(rawValue: 0))
-                                if let partnerHeimdall = Heimdall(publicTag: HLUltils.generateTagPrefix(12), publicKeyData: puplicKeyData) {
-                                    let encryptedText = partnerHeimdall.encrypt(msg.content!)
-                                    let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText, messageId: msg.id)
+                                let puplicKeyData = publicKeyString.dataUTF8
+                                if let encryptedText = try? CC.RSA.encrypt(msg.content!.dataUTF8!, derKey: puplicKeyData!, tag: HLUltils.RsaTag, padding: CC.RSA.AsymmetricPadding.oaep, digest: CC.DigestAlgorithm.sha1) {                                    
+                                    let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText.stringUTF8, messageId: msg.id)
                                     if let jsonObject = messagePackage.jsonObject() {
                                         let jsonString = JSON(jsonObject).toString()
                                         self.iotDataManager.publishString(jsonString, onTopic: fromUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
@@ -216,9 +210,11 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
                     }
                     
                     if let callback = self.onReceivedMessage where messagePackage.type == HLMessageType.ReceivedMessage {
-                        if let decryptedString = self.localHeimdall?.decrypt(messagePackage.content) {
+                        
+                        if let (decryptedData, _) = try? CC.RSA.decrypt(messagePackage.content.dataBase64!, derKey: (DyUser.currentUser?.privateKey)!, tag: HLUltils.RsaTag, padding: CC.RSA.AsymmetricPadding.oaep, digest: CC.DigestAlgorithm.sha1) {
+                            let decryptedString = decryptedData.stringUTF8
                             messagePackage.content = decryptedString
-                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString, status: DyMessageStatus.Deliveried,block: {(messageId) -> Void in
+                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString!, status: DyMessageStatus.Deliveried,block: {(messageId) -> Void in
                                 if messageId != nil {
                                     print("[HL] Saved message. Id: \(messageId)")
                                 } else {
@@ -259,8 +255,8 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
     }
     
     func sendBroadcastPublicKeyOnHandshakeChannel() {
-        let publicKeyData = self.localHeimdall?.publicKeyDataX509()!
-        let publicKeyString = publicKeyData?.base64EncodedStringWithOptions([])
+        let publicKeyData = DyUser.currentUser?.publicKey
+        let publicKeyString = publicKeyData?.stringBase64
         let messagePackage = HLMessagePackage(broadcastUser: self.currentUser, content: publicKeyString)
         
         if let jsonObject = messagePackage.jsonObject() {
@@ -270,8 +266,8 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
     }
 
     func sendAgreePublicKeyOnUserChannel(theUser: HLUser!) {
-        let publicKeyData = self.localHeimdall?.publicKeyDataX509()!
-        let publicKeyString = publicKeyData?.base64EncodedStringWithOptions([])
+        let publicKeyData = DyUser.currentUser?.publicKey
+        let publicKeyString = publicKeyData?.stringBase64
         let messagePackage = HLMessagePackage(agreeUser: self.currentUser, content: publicKeyString)
         
         if let jsonObject = messagePackage.jsonObject() {
@@ -291,23 +287,26 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
     
     func sendChatOnUserChannel(theUser: HLUser!, textMessage: String!) -> Bool {
         if let publicKeyString = self.publicKeys[theUser.username] {
-            let puplicKeyData = NSData(base64EncodedString: publicKeyString, options:NSDataBase64DecodingOptions(rawValue: 0))
-            if let partnerHeimdall = Heimdall(publicTag: HLUltils.generateTagPrefix(12), publicKeyData: puplicKeyData) {
-                let encryptedText = partnerHeimdall.encrypt(textMessage)
-                self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Sent, block: {(messageId) -> Void in
-                    if messageId != nil {
-                        let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText, messageId: messageId)
-                        if let jsonObject = messagePackage.jsonObject() {
-                            let jsonString = JSON(jsonObject).toString()
-                            self.iotDataManager.publishString(jsonString, onTopic: theUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
+            if let puplicKeyData = publicKeyString.dataBase64 {
+                if let encryptedData = try? CC.RSA.encrypt(textMessage.dataUTF8!, derKey: puplicKeyData, tag: HLUltils.RsaTag, padding: CC.RSA.AsymmetricPadding.oaep, digest: CC.DigestAlgorithm.sha1) {
+                    self.saveMessage(self.currentUser.id, toUserId: theUser.id,textMessage: textMessage, status: DyMessageStatus.Sent, block: {(messageId) -> Void in
+                        if messageId != nil {
+                            let encryptedText = encryptedData.stringBase64!
+                            let messagePackage = HLMessagePackage(chatUser: self.currentUser, content: encryptedText, messageId: messageId)
+                            if let jsonObject = messagePackage.jsonObject() {
+                                let jsonString = JSON(jsonObject).toString()
+                                self.iotDataManager.publishString(jsonString, onTopic: theUser.username, qoS: .MessageDeliveryAttemptedAtMostOnce)
+                            } else {
+                                 print("[HL] Cannot send message (error JSON): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
+                            }
                         } else {
-                             print("[HL] Cannot send message (error JSON): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
+                            print("[HL] Cannot send message (error messageId): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
                         }
-                    } else {
-                        print("[HL] Cannot send message (error messageId): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
-                    }
-                })
-                return true
+                    })
+                    return true
+                } else {
+                    return false
+                }
             } else {
                 print("[HL] Cannot send message (error RSA): fromUser \(self.currentUser.id), toUser:\(theUser.id)")
             }
@@ -332,8 +331,8 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
     }
     
     public func shareKey(shareKey: HLBleShareKey, canSendDatafromCentral fromCentral: BKCentral, toPeripheral: BKRemotePeripheral) {
-        let publicKeyData = self.localHeimdall?.publicKeyDataX509()!
-        let publicKeyString = publicKeyData?.base64EncodedStringWithOptions([])
+        let publicKeyData = DyUser.currentUser?.publicKey
+        let publicKeyString = publicKeyData?.stringBase64
         let messagePackage = HLMessagePackage(broadcastUser: self.currentUser, content: publicKeyString)
         
         if let jsonObject = messagePackage.jsonObject() {

@@ -9,7 +9,7 @@
 import Foundation
 import AWSDynamoDB
 import RNCryptor
-import Heimdall
+import SwCrypt
 
 let kDynamoDBKey = "kDynamoDBKey"
 let kDynamoMapperKey = "kDynamoMapperKey"
@@ -37,6 +37,7 @@ public class HLDynamoDBManager {
 
     required public init() {
         let credentialProvider = AWSCognitoCredentialsProvider(regionType: AwsRegion, identityPoolId: CognitoIdentityPoolId)
+        //credentialProvider.clearKeychain()
         let configuration = AWSServiceConfiguration(region: AwsRegion, credentialsProvider: credentialProvider)
         let mapperConfig = AWSDynamoDBObjectMapperConfiguration()
         
@@ -215,16 +216,22 @@ public class HLDynamoDBManager {
                             let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt)
                             let randomSalt = HLUltils.generateTagPrefix(8).dataUTF8!
                             let keyK = RNCryptor.FormatV3.keyForPassword(password, salt: randomSalt)
-                            let keyEncryptedK = RNCryptor.encryptData(keyK, password: keyQ.base64String!)
-                            let localHeimdall = Heimdall(tagPrefix: dyUser.onceTagPrefix, keySize: 2048)
+                            let keyEncryptedK = RNCryptor.encryptData(keyK, password: keyQ.stringBase64!)
+                            
+                            if let(privateKey, publicKey) = try? CC.RSA.generateKeyPair() {
+                                dyUser.privateKey = privateKey
+                                dyUser.publicKey = publicKey
+                            }
+                            else {
+                                block(NSError(errorMessage: "Cannot generate key pairs. Please contact to us"))
+                                return
+                            }
                             
                             let keychain = AWSUICKeyChainStore(service: kKeychainDB)
                             keychain.setData(keyQ, forKey: dyUser.userId!)
                             
                             dyUser.keyEncryptedK = keyEncryptedK
                             dyUser.fullname = fullname
-                            dyUser.privateKey = localHeimdall?.privateKeyData()
-                            dyUser.publicKey = localHeimdall?.publicKeyDataX509()
                             dyUser.save({ (error) in
                                 if (error != nil) {
                                     keychain.removeItemForKey(dyUser.userId!)
@@ -276,7 +283,7 @@ public class HLDynamoDBManager {
                         let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt!)
                         if  let encryptedKeyK = rawModel.keyEncryptedK {
                             do {
-                                let _ = try RNCryptor.decryptData(encryptedKeyK, password: keyQ.base64String!)
+                                let _ = try RNCryptor.decryptData(encryptedKeyK, password: keyQ.stringBase64!)
                                 let keychain = AWSUICKeyChainStore(service: kKeychainDB)
                                 keychain.setData(keyQ, forKey: dyUser.userId!)
                                 rawModel.decrypt()

@@ -135,7 +135,7 @@ public class DyMessage: AWSDynamoDBObjectModel {
         if let base64KeyQ = DyUser.currentUser!.base64KeyQ {
             do {
                 let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
-                if let base64KeyK = decryptedKeyK.base64String {
+                if let base64KeyK = decryptedKeyK.stringBase64 {
                     self.v_content = RNCryptor.encryptData(self.v_content!, password: base64KeyK)
                     self.v_status = RNCryptor.encryptData(self.v_status!, password: base64KeyK)
                     self.v_createAt = RNCryptor.encryptData(self.v_createAt!, password: base64KeyK)
@@ -154,7 +154,7 @@ public class DyMessage: AWSDynamoDBObjectModel {
     func dencrypt() -> Bool {
         if let keyK = DyUser.currentUser!.keyDecryptedK {
             do {
-                if let base64KeyK = keyK.base64String {
+                if let base64KeyK = keyK.stringBase64 {
                     let dencryptedCTE = try RNCryptor.decryptData(self.v_content!, password: base64KeyK)
                     let dencryptedSTU = try RNCryptor.decryptData(self.v_status!, password: base64KeyK)
                     let dencryptedCRT = try RNCryptor.decryptData(self.v_createAt!, password: base64KeyK)
@@ -187,7 +187,7 @@ public class DyMessage: AWSDynamoDBObjectModel {
             if let base64KeyQ = DyUser.currentUser!.base64KeyQ {
                 do {
                     let decryptedKeyK = try RNCryptor.decryptData(DyUser.currentUser!.keyEncryptedK!, password: base64KeyQ)
-                    if let base64KeyK = decryptedKeyK.base64String {
+                    if let base64KeyK = decryptedKeyK.stringBase64 {
                         dyMsg.status = status
                         dyMsg.v_status = RNCryptor.encryptData(dyMsg.v_status!, password: base64KeyK)
                         self.copyData(dyMsg)

@@ -38,7 +38,7 @@ public class DyUser: AWSDynamoDBObjectModel {
         get {
             let keychain = AWSUICKeyChainStore(service: kKeychainDB)
             let keyQ = keychain.dataForKey(self.userId!)
-            let keyQString = keyQ?.base64String
+            let keyQString = keyQ?.stringBase64
             return keyQString
         }
     }
@@ -177,7 +177,7 @@ public class DyUser: AWSDynamoDBObjectModel {
         if let base64KeyQ = self.base64KeyQ {
             do {
                 let decryptedKeyK = try RNCryptor.decryptData(self.keyEncryptedK!, password: base64KeyQ)
-                if let base64KeyK = decryptedKeyK.base64String {
+                if let base64KeyK = decryptedKeyK.stringBase64 {
                     self.v_username = RNCryptor.encryptData(self.v_username!, password: base64KeyK)
                     self.v_fullname = RNCryptor.encryptData(self.v_fullname!, password: base64KeyK)
                     self.v_privateKey = RNCryptor.encryptData(self.v_privateKey!, password: base64KeyK)
@@ -199,7 +199,7 @@ public class DyUser: AWSDynamoDBObjectModel {
         if let base64KeyQ = self.base64KeyQ {
             do {
                 let decryptedKeyK = try RNCryptor.decryptData(self.keyEncryptedK!, password: base64KeyQ)
-                if let base64KeyK = decryptedKeyK.base64String {
+                if let base64KeyK = decryptedKeyK.stringBase64 {
                     let dencryptedUN = try RNCryptor.decryptData(self.v_username!, password: base64KeyK)
                     let dencryptedFN = try RNCryptor.decryptData(self.v_fullname!, password: base64KeyK)
                     let dencryptedPR = try RNCryptor.decryptData(self.v_privateKey!, password: base64KeyK)

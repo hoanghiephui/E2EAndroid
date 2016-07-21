@@ -60,7 +60,7 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
                 self.activityIndicatorView.stopAnimating()
                 self.connectButton.enabled = true
                 if error == nil {
-                    if HLConnectionManager.shared.setupHeimdall() == false {
+                    if DyUser.currentUser?.privateKey == nil ||  DyUser.currentUser?.publicKey == nil {
                         let alert = HLUltils.alertController("Failure to setup the keys", okTitle: "OK")
                         self.presentViewController(alert, animated: true, completion: nil)
                     } else {

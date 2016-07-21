@@ -3,7 +3,7 @@ use_frameworks!
 
 target 'HeilambClient' do
 
-pod 'Heimdall', :git => 'https://github.com/sinbadflyce/Heimdall.git'
+pod 'SwCrypt', :git => 'https://github.com/sinbadflyce/SwCrypt.git'
 pod 'Hashids-Swift', '~> 0.3.0'
 pod 'RNCryptor', '~> 4.0.0'
 pod 'AWSLambda'

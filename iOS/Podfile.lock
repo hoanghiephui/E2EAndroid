@@ -10,8 +10,8 @@ PODS:
     - AWSCore (= 2.4.3)
   - BluetoothKit (0.3.0)
   - Hashids-Swift (0.3.0)
-  - Heimdall (1.0.0)
   - RNCryptor (4.0.0)
+  - SwCrypt (3.0)
 
 DEPENDENCIES:
   - AWSCognito
@@ -20,17 +20,17 @@ DEPENDENCIES:
   - AWSLambda
   - BluetoothKit (~> 0.3.0)
   - Hashids-Swift (~> 0.3.0)
-  - Heimdall (from `https://github.com/sinbadflyce/Heimdall.git`)
   - RNCryptor (~> 4.0.0)
+  - SwCrypt (from `https://github.com/sinbadflyce/SwCrypt.git`)
 
 EXTERNAL SOURCES:
-  Heimdall:
-    :git: https://github.com/sinbadflyce/Heimdall.git
+  SwCrypt:
+    :git: https://github.com/sinbadflyce/SwCrypt.git
 
 CHECKOUT OPTIONS:
-  Heimdall:
-    :commit: 717c9e2e6a7377b7501c23e76696686744bab0f0
-    :git: https://github.com/sinbadflyce/Heimdall.git
+  SwCrypt:
+    :commit: c5d8f1da4afaa230441e61be6f7958096463a4df
+    :git: https://github.com/sinbadflyce/SwCrypt.git
 
 SPEC CHECKSUMS:
   AWSCognito: 9a83fcecccd8b9efaa82fec7722ee2a4c723b0fe
@@ -40,9 +40,9 @@ SPEC CHECKSUMS:
   AWSLambda: 26951192989fc68625134e4d856e23fede7cd755
   BluetoothKit: 23c4e2ef6a0beeda7e50647b0eb3496f40d90ad2
   Hashids-Swift: 5d7c069b0d4a3b70d4e2a840c420115dd517050d
-  Heimdall: 15b1b23a07213f02808fe0ef6007daf1c563d4e7
   RNCryptor: 59d6483908115af5c12b884db23392024e52a5fe
+  SwCrypt: ece93a2c138d1d1c754b0462e56f7294b7cac529
 
-PODFILE CHECKSUM: 89f1c5c15a0be93ae917d1485decd5f5e9223342
+PODFILE CHECKSUM: 71939fdb0652ea3d2f1e0a847c85b9e2e7ad0137
 
 COCOAPODS: 1.0.1
