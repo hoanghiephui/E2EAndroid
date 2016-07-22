@@ -1,0 +1,13 @@
+platform :osx, '10.11'
+use_frameworks!
+
+target 'HeilambOSX' do
+pod 'Hashids-Swift', :git => 'https://github.com/sinbadflyce/hashids.git'
+pod 'RNCryptor', '~> 4.0.0'
+pod 'AWSCore', :git => 'https://github.com/sinbadflyce/aws-sdk-osx.git'
+pod 'AWSIoT', :git => 'https://github.com/sinbadflyce/aws-sdk-osx.git'
+pod 'AWSDynamoDB', :git => 'https://github.com/sinbadflyce/aws-sdk-osx.git'
+pod 'SwCrypt', :git => 'https://github.com/sinbadflyce/SwCrypt.git'
+pod 'BluetoothKit', '~> 0.3.0'
+
+end

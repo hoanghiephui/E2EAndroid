@@ -1,0 +1,61 @@
+PODS:
+  - AWSCore (2.4.1)
+  - AWSDynamoDB (2.4.1):
+    - AWSCore (= 2.4.1)
+  - AWSIoT (2.4.1):
+    - AWSCore (= 2.4.1)
+  - BluetoothKit (0.3.0)
+  - Hashids-Swift (0.3.1)
+  - RNCryptor (4.0.0)
+  - SwCrypt (3.0)
+
+DEPENDENCIES:
+  - AWSCore (from `https://github.com/sinbadflyce/aws-sdk-osx.git`)
+  - AWSDynamoDB (from `https://github.com/sinbadflyce/aws-sdk-osx.git`)
+  - AWSIoT (from `https://github.com/sinbadflyce/aws-sdk-osx.git`)
+  - BluetoothKit (~> 0.3.0)
+  - Hashids-Swift (from `https://github.com/sinbadflyce/hashids.git`)
+  - RNCryptor (~> 4.0.0)
+  - SwCrypt (from `https://github.com/sinbadflyce/SwCrypt.git`)
+
+EXTERNAL SOURCES:
+  AWSCore:
+    :git: https://github.com/sinbadflyce/aws-sdk-osx.git
+  AWSDynamoDB:
+    :git: https://github.com/sinbadflyce/aws-sdk-osx.git
+  AWSIoT:
+    :git: https://github.com/sinbadflyce/aws-sdk-osx.git
+  Hashids-Swift:
+    :git: https://github.com/sinbadflyce/hashids.git
+  SwCrypt:
+    :git: https://github.com/sinbadflyce/SwCrypt.git
+
+CHECKOUT OPTIONS:
+  AWSCore:
+    :commit: 952fd9e67304e9b8f8c2c2ebb7fcf69e5d34f155
+    :git: https://github.com/sinbadflyce/aws-sdk-osx.git
+  AWSDynamoDB:
+    :commit: d6ae1f743eec4d9589805ebdb60ff44e4b6a3996
+    :git: https://github.com/sinbadflyce/aws-sdk-osx.git
+  AWSIoT:
+    :commit: 3fb4c767cfa368956f802c03a20c7caa0508169c
+    :git: https://github.com/sinbadflyce/aws-sdk-osx.git
+  Hashids-Swift:
+    :commit: 0bc18ebd5d627c1f451d36be39ecd0754b4baab8
+    :git: https://github.com/sinbadflyce/hashids.git
+  SwCrypt:
+    :commit: 2f82e57accd857637998db8cba0a8a916f1b1381
+    :git: https://github.com/sinbadflyce/SwCrypt.git
+
+SPEC CHECKSUMS:
+  AWSCore: d5cde5bac1594507602f008bbd143567a99eea49
+  AWSDynamoDB: b5e90ec9ecdf6dea1a95f8992595951ea139a0e2
+  AWSIoT: 4e812c4d49fbab0a9539c2464a95d230e40efaa5
+  BluetoothKit: 23c4e2ef6a0beeda7e50647b0eb3496f40d90ad2
+  Hashids-Swift: 8a27538f0c5ce5f3b9694997eba1b725e19ccaf2
+  RNCryptor: 59d6483908115af5c12b884db23392024e52a5fe
+  SwCrypt: ece93a2c138d1d1c754b0462e56f7294b7cac529
+
+PODFILE CHECKSUM: 229c7578ef9a31e67d2bd6706749397dacbe517b
+
+COCOAPODS: 1.0.1

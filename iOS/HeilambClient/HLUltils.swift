@@ -53,13 +53,31 @@ public class HLUltils {
         let hashids = Hashids(salt: stringValue, minHashLength: 10)
         return hashids.encode(9)
     }
-    
+#if os(iOS)
     class func alertController(message: String, okTitle: String) -> UIAlertController{
         let alert : UIAlertController = UIAlertController(title: "E2EE", message: message, preferredStyle: UIAlertControllerStyle.Alert)
         let OKAction = UIAlertAction(title: okTitle, style: .Default, handler: nil)
         alert.addAction(OKAction)
         return alert
     }
+#elseif os(OSX)
+    class func alert (message message : String, window: NSWindow?  = nil){
+        let alert = NSAlert()
+        alert.addButtonWithTitle("Ok");
+        alert.messageText = "E2E OSX"
+        alert.informativeText = message
+        if let w = window {
+            alert.beginSheetModalForWindow(w, completionHandler: nil)
+        } else {
+            alert.runModal()
+        }
+    }
+    
+    class func alert (error error : NSError, window: NSWindow?) {
+        self.alert(message: error.localizedDescription, window: window)
+    }
+    
+#endif
     
     class func executeDelay(inSecond: Double, block: () -> Void)  {
         let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(inSecond * Double(NSEC_PER_SEC)))
