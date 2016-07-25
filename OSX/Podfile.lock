@@ -32,19 +32,19 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AWSCore:
-    :commit: 952fd9e67304e9b8f8c2c2ebb7fcf69e5d34f155
+    :commit: 9a13cc74717db082c8fd0b89dc2f0eba5c1caa39
     :git: https://github.com/sinbadflyce/aws-sdk-osx.git
   AWSDynamoDB:
-    :commit: d6ae1f743eec4d9589805ebdb60ff44e4b6a3996
+    :commit: 9a13cc74717db082c8fd0b89dc2f0eba5c1caa39
     :git: https://github.com/sinbadflyce/aws-sdk-osx.git
   AWSIoT:
-    :commit: 3fb4c767cfa368956f802c03a20c7caa0508169c
+    :commit: 1feccb8ae0fdcac3fae6b04b9d6342589143ff34
     :git: https://github.com/sinbadflyce/aws-sdk-osx.git
   Hashids-Swift:
     :commit: 0bc18ebd5d627c1f451d36be39ecd0754b4baab8
     :git: https://github.com/sinbadflyce/hashids.git
   SwCrypt:
-    :commit: 2f82e57accd857637998db8cba0a8a916f1b1381
+    :commit: c5d8f1da4afaa230441e61be6f7958096463a4df
     :git: https://github.com/sinbadflyce/SwCrypt.git
 
 SPEC CHECKSUMS:

@@ -651,8 +651,8 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                    <window key="window" title="E2E OSX" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
@@ -742,11 +742,124 @@
                         <outlet property="indicatorView" destination="WM0-ZA-N53" id="QUm-JQ-cQa"/>
                         <outlet property="txtPassword" destination="nP6-2z-449" id="HVh-r3-G57"/>
                         <outlet property="txtUsername" destination="xOQ-I6-yvK" id="sF7-ih-7VU"/>
+                        <segue destination="GlQ-lX-1GS" kind="sheet" identifier="login_to_split" id="p7s-Ip-juE"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="75" y="655"/>
+        </scene>
+        <!--Contact & Chat Split-->
+        <scene sceneID="yHI-RU-OEQ">
+            <objects>
+                <splitViewController title="Contact &amp; Chat Split" id="GlQ-lX-1GS" sceneMemberID="viewController">
+                    <splitViewItems>
+                        <splitViewItem holdingPriority="255" behavior="contentList" id="yGp-qX-mdK"/>
+                        <splitViewItem id="mOf-mw-cwM"/>
+                    </splitViewItems>
+                    <splitView key="splitView" autosaveName="save" dividerStyle="thin" vertical="YES" id="RAd-Rb-BJW">
+                        <rect key="frame" x="0.0" y="0.0" width="750" height="500"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </splitView>
+                    <connections>
+                        <segue destination="6iV-qZ-OCc" kind="relationship" relationship="splitItems" id="tVQ-cS-N7u"/>
+                        <segue destination="NJ6-4P-dK0" kind="relationship" relationship="splitItems" id="qKQ-6o-2Oi"/>
+                    </connections>
+                </splitViewController>
+                <customObject id="5Kc-q2-bxb" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="795" y="655"/>
+        </scene>
+        <!--Contact View Controller-->
+        <scene sceneID="Ui2-RE-Ajd">
+            <objects>
+                <viewController id="6iV-qZ-OCc" customClass="HLContactViewController" customModule="HeilambOSX" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="aSi-Ih-Hoj">
+                        <rect key="frame" x="0.0" y="0.0" width="250" height="400"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="22" horizontalPageScroll="10" verticalLineScroll="22" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3qa-rf-C9U">
+                                <rect key="frame" x="0.0" y="0.0" width="250" height="400"/>
+                                <clipView key="contentView" ambiguous="YES" id="8rj-be-t6R">
+                                    <rect key="frame" x="1" y="0.0" width="248" height="399"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="20" rowSizeStyle="automatic" headerView="O1V-Yd-3eT" viewBased="YES" id="0Cj-SF-TEr">
+                                            <rect key="frame" x="0.0" y="0.0" width="253" height="376"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <size key="intercellSpacing" width="3" height="2"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                            <tableColumns>
+                                                <tableColumn editable="NO" width="250" minWidth="250" maxWidth="250" id="jQH-cA-wiQ">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="center" title="Contact">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="rmL-ju-3rN">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <prototypeCellViews>
+                                                        <tableCellView id="d5y-vL-USN">
+                                                            <rect key="frame" x="1" y="1" width="250" height="20"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                            <subviews>
+                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uNm-Gv-P7U">
+                                                                    <rect key="frame" x="0.0" y="3" width="100" height="17"/>
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="sQf-SS-uSD">
+                                                                        <font key="font" metaFont="system"/>
+                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                    </textFieldCell>
+                                                                </textField>
+                                                            </subviews>
+                                                            <connections>
+                                                                <outlet property="textField" destination="uNm-Gv-P7U" id="Aup-jF-Wp1"/>
+                                                            </connections>
+                                                        </tableCellView>
+                                                    </prototypeCellViews>
+                                                </tableColumn>
+                                            </tableColumns>
+                                        </tableView>
+                                    </subviews>
+                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </clipView>
+                                <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="g9z-oG-hO1">
+                                    <rect key="frame" x="1" y="383" width="248" height="16"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="5gm-pb-C4W">
+                                    <rect key="frame" x="224" y="17" width="15" height="102"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <tableHeaderView key="headerView" id="O1V-Yd-3eT">
+                                    <rect key="frame" x="0.0" y="0.0" width="253" height="23"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableHeaderView>
+                            </scrollView>
+                        </subviews>
+                    </view>
+                </viewController>
+                <customObject id="VNb-4F-4au" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1688" y="475"/>
+        </scene>
+        <!--Chat View Controller-->
+        <scene sceneID="zWM-c1-8Ih">
+            <objects>
+                <viewController id="NJ6-4P-dK0" customClass="HLChatViewController" customModule="HeilambOSX" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="A6l-R0-IY5">
+                        <rect key="frame" x="0.0" y="0.0" width="500" height="400"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </view>
+                </viewController>
+                <customObject id="4yx-II-w68" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1806" y="932"/>
         </scene>
     </scenes>
 </document>

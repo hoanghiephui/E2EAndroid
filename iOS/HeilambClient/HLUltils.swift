@@ -73,7 +73,7 @@ public class HLUltils {
         }
     }
     
-    class func alert (error error : NSError, window: NSWindow?) {
+    class func alertError (error : NSError, window: NSWindow? = nil) {
         self.alert(message: error.localizedDescription, window: window)
     }
     

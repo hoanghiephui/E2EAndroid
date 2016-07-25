@@ -3,7 +3,7 @@
 //  HeilambOSX
 //
 //  Created by Sinbad Flyce on 6/27/16.
-//  Copyright © 2016 Sinbad Flyce. All rights reserved.
+//  Copyright © 2016 YusufX. All rights reserved.
 //
 
 import Cocoa
@@ -21,8 +21,8 @@ class HLLoginViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-        
+        txtUsername.stringValue = "yusuf"
+        txtPassword.stringValue = "1111"
     }
 
     override var representedObject: AnyObject? {
@@ -43,9 +43,9 @@ class HLLoginViewController: NSViewController {
         HLDynamoDBManager.shared.login(txtUsername.stringValue, password: txtPassword.stringValue) { (error) in
             self.indicatorView.stopAnimation(sender);
             if let err = error {
-                HLUltils.alert(error: err, window: self.view.window)
+                HLUltils.alertError(err, window: self.view.window)
             } else {
-                HLUltils.alert(message: "Success login!", window: self.view.window)
+                self.performSegueWithIdentifier("login_to_split", sender: self)
             }
         };
     }

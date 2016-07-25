@@ -2,3 +2,5 @@ iOS/Pods
 iOS/HeilambClient.xcworkspace
 iOS/HeilambClient.xcodeproj/xcuserdata
 OSX/Pods
+/OSX/HeilambOSX.xcworkspace
+/OSX/HeilambOSX.xcodeproj/xcuserdata

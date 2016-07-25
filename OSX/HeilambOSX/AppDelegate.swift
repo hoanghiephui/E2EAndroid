@@ -3,7 +3,7 @@
 //  HeilambOSX
 //
 //  Created by Sinbad Flyce on 6/27/16.
-//  Copyright © 2016 Sinbad Flyce. All rights reserved.
+//  Copyright © 2016 YusufX. All rights reserved.
 //
 
 import Cocoa

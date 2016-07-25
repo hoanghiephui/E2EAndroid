@@ -33,21 +33,22 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
         chatUser.fullname =  DyUser.currentUser?.fullname
         
         HLConnectionManager.shared.connectWithUser(chatUser) { (success) in
-            self.title = "Ready"
-            DyContact.fetchAll({ (items) in
-                if let arrayContact = items {
-                    for ct in arrayContact {
-                        let sct = ct as! DyContact
-                        let chatUser = HLUser()
-                        chatUser.id = sct.id
-                        chatUser.username = sct.username
-                        chatUser.fullname = sct.fullname
-                        self.contacts[chatUser.id] = chatUser
+            if (success) {
+                self.title = "Ready"
+                DyContact.fetchAll({ (items) in
+                    if let arrayContact = items {
+                        for ct in arrayContact {
+                            let sct = ct as! DyContact
+                            let chatUser = HLUser()
+                            chatUser.id = sct.id
+                            chatUser.username = sct.username
+                            chatUser.fullname = sct.fullname
+                            self.contacts[chatUser.id] = chatUser
+                        }
+                        self.tableView.reloadData()
                     }
-                    
-                    self.tableView.reloadData()
-                }
-            })
+                })
+            }
         }
     }
     

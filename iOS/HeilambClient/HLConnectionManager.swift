@@ -61,9 +61,9 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
         if (myImages.count > 0) {
             
             if let data = NSData(contentsOfFile:myImages[0]) {
-                if AWSIoTManager.importIdentityFromPKCS12Data( data, passPhrase:"", certificateId:myImages[0]) {
+                if AWSIoTManager.importIdentityFromPKCS12Data( data, passPhrase:"1111", certificateId:"awsiot-identity") {
                     dispatch_async( dispatch_get_main_queue()) {
-                        self.iotDataManager.connectWithClientId( user.username, cleanSession:true, certificateId:myImages[0],statusCallback: { ( status ) in
+                        self.iotDataManager.connectWithClientId( user.username, cleanSession:true, certificateId:"awsiot-identity",statusCallback: { ( status ) in
                             dispatch_async( dispatch_get_main_queue()) {
                                 print("[HL] connection status = \(status.rawValue)")
                                 switch(status)
@@ -101,6 +101,10 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
                     }
                 }
             }
+        } else {
+#if os(OSX)
+            HLUltils.alert(message: "You don't have certificates");
+#endif
         }
     }
     

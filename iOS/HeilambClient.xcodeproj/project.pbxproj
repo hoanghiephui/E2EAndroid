@@ -11,6 +11,7 @@
 		E537F4DD1CE4CD3200775DEF /* json.swift in Sources */ = {isa = PBXBuildFile; fileRef = E537F4DC1CE4CD3200775DEF /* json.swift */; };
 		E5479E7D1CEC5E45008F5A76 /* HLContactViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */; };
 		E54E6B601D13FAFE002A0D9E /* HLBleShareKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54E6B5F1D13FAFE002A0D9E /* HLBleShareKey.swift */; };
+		E552006E1D467E9B003350F2 /* awsiot-identity.p12 in Resources */ = {isa = PBXBuildFile; fileRef = E552006D1D467E9B003350F2 /* awsiot-identity.p12 */; };
 		E55D470D1CFBEC4100178074 /* DyContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55D470C1CFBEC4100178074 /* DyContact.swift */; };
 		E55D470F1CFBEE5800178074 /* DyMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55D470E1CFBEE5800178074 /* DyMessage.swift */; };
 		E564B9DF1CF6A68600486517 /* DyUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E564B9DE1CF6A68600486517 /* DyUser.swift */; };
@@ -26,7 +27,6 @@
 		E5B4E25D1CEC46C900BE9E50 /* HLUltils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B4E25C1CEC46C900BE9E50 /* HLUltils.swift */; };
 		E5DB11FC1CF5835B0079D1B5 /* HLSignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DB11FB1CF5835B0079D1B5 /* HLSignupViewController.swift */; };
 		E5F98EC61CE490F300056341 /* LGSimpleChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F98EC51CE490F300056341 /* LGSimpleChat.swift */; };
-		E5F98EC81CE4919400056341 /* awsiot-identity.p12 in Resources */ = {isa = PBXBuildFile; fileRef = E5F98EC71CE4919400056341 /* awsiot-identity.p12 */; };
 		E5F98ECC1CE492D900056341 /* HLConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F98ECB1CE492D900056341 /* HLConstants.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +36,7 @@
 		E537F4DC1CE4CD3200775DEF /* json.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = json.swift; sourceTree = "<group>"; };
 		E5479E7C1CEC5E45008F5A76 /* HLContactViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLContactViewController.swift; sourceTree = "<group>"; };
 		E54E6B5F1D13FAFE002A0D9E /* HLBleShareKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLBleShareKey.swift; sourceTree = "<group>"; };
+		E552006D1D467E9B003350F2 /* awsiot-identity.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = "awsiot-identity.p12"; path = "../../Certs/awsiot-identity.p12"; sourceTree = "<group>"; };
 		E55D470C1CFBEC4100178074 /* DyContact.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyContact.swift; sourceTree = "<group>"; };
 		E55D470E1CFBEE5800178074 /* DyMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyMessage.swift; sourceTree = "<group>"; };
 		E564B9DE1CF6A68600486517 /* DyUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DyUser.swift; sourceTree = "<group>"; };
@@ -53,7 +54,6 @@
 		E5B4E25C1CEC46C900BE9E50 /* HLUltils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLUltils.swift; sourceTree = "<group>"; };
 		E5DB11FB1CF5835B0079D1B5 /* HLSignupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLSignupViewController.swift; sourceTree = "<group>"; };
 		E5F98EC51CE490F300056341 /* LGSimpleChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LGSimpleChat.swift; sourceTree = "<group>"; };
-		E5F98EC71CE4919400056341 /* awsiot-identity.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "awsiot-identity.p12"; sourceTree = "<group>"; };
 		E5F98ECB1CE492D900056341 /* HLConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HLConstants.swift; sourceTree = "<group>"; };
 		F48AA1B60A51575A3A7053FD /* Pods_HeilambClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_HeilambClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -158,7 +158,7 @@
 				E5659F1E1CE313510071CD8A /* Main.storyboard */,
 				E5659F211CE313510071CD8A /* Assets.xcassets */,
 				E5659F231CE313510071CD8A /* LaunchScreen.storyboard */,
-				E5F98EC71CE4919400056341 /* awsiot-identity.p12 */,
+				E552006D1D467E9B003350F2 /* awsiot-identity.p12 */,
 				E5659F261CE313510071CD8A /* Info.plist */,
 			);
 			path = HeilambClient;
@@ -236,7 +236,7 @@
 			files = (
 				E5659F251CE313510071CD8A /* LaunchScreen.storyboard in Resources */,
 				E5659F221CE313510071CD8A /* Assets.xcassets in Resources */,
-				E5F98EC81CE4919400056341 /* awsiot-identity.p12 in Resources */,
+				E552006E1D467E9B003350F2 /* awsiot-identity.p12 in Resources */,
 				E5659F201CE313510071CD8A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
