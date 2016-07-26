@@ -9,7 +9,9 @@
 import Foundation
 import Cocoa
 
-class HLContactViewController: NSViewController {
+class HLContactViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource {
+    @IBOutlet weak var tableView: NSTableView!
+    
     var contacts : [String : HLUser]!
     
     required init(coder aDecoder: NSCoder) {
@@ -19,12 +21,15 @@ class HLContactViewController: NSViewController {
         HLConnectionManager.shared.onAgreedMessage      = self.onAgreedMessage
         HLConnectionManager.shared.onReceivedMessage    = self.onReceivedMessage
         HLConnectionManager.shared.onDeliveriedMessage  = self.OnDeliveriedMessage
+        HLConnectionManager.shared.onReceivedDyMessage  = self.onReceivedDyMessage
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.connectAWSIot()
     }
+    
+    // MARK: - Connection
     
     func connectAWSIot() {
         self.title = "Connecting..."
@@ -45,7 +50,8 @@ class HLContactViewController: NSViewController {
                             chatUser.username = sct.username
                             chatUser.fullname = sct.fullname
                             self.contacts[chatUser.id] = chatUser
-                        }                                        
+                        }
+                        self.tableView.reloadData()
                     }
                 })
             }
@@ -65,8 +71,42 @@ class HLContactViewController: NSViewController {
     }
     
     func onReceivedMessage(messagePackage: HLMessagePackage?) {
+        NSNotificationCenter.defaultCenter().postNotificationName("CONTACT_INCOMING_MESSAGE", object: messagePackage)
+    }
+    
+    func onReceivedDyMessage(dyMessage: DyMessage?)  {
+        NSNotificationCenter.defaultCenter().postNotificationName("CONTACT_INCOMING_DYMESSAGE", object: dyMessage)
     }
     
     func OnDeliveriedMessage(messagePackage: HLMessagePackage?) {
+    }
+    
+    // MARK: - TableView
+    
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return contacts?.count ?? 0
+    }
+    
+    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        let cellIdentifier: String = "ContactCell"
+        let keys = Array(self.contacts.keys)
+        let key = keys[row] as String
+        let chatUser = self.contacts[key]
+        if tableColumn == tableView.tableColumns[0] {
+        }
+        
+        if let cell = tableView.makeViewWithIdentifier(cellIdentifier, owner: nil) as? NSTableCellView {
+            cell.textField?.stringValue = (chatUser?.fullname)!
+            return cell
+        }
+        return nil
+    }
+    
+    func tableView(tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
+        let keys = Array(self.contacts.keys)
+        let key = keys[row] as String
+        let chatUser = self.contacts[key]
+        NSNotificationCenter.defaultCenter().postNotificationName("CONTACT_SELECTED_USER", object: chatUser)
+        return true
     }
 }

@@ -108,6 +108,14 @@ public class DyMessage: AWSDynamoDBObjectModel {
         super.init(coder: coder)
     }
     
+    required public convenience init!(messagePackage: HLMessagePackage!, toUserId: String!) {
+        self.init()
+        self.fromUserId = messagePackage.fromUser.id
+        self.toUserId = toUserId
+        self.content = messagePackage.content
+        self.status = DyMessageStatus.Unknown
+    }
+    
     public override init(dictionary dictionaryValue: [NSObject : AnyObject]!, error: ()) throws {
          try super.init(dictionary: dictionaryValue, error: error)
     }

@@ -21,7 +21,7 @@ class HLLoginViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        txtUsername.stringValue = "yusuf"
+        txtUsername.stringValue = "sinbadflyce"
         txtPassword.stringValue = "1111"
     }
 

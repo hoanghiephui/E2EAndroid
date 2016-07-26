@@ -26,6 +26,7 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
     
     var currentUser : HLUser!
     public var onReceivedMessage: ((HLMessagePackage?) -> ())?
+    public var onReceivedDyMessage: ((DyMessage?) -> ())?
     public var onHandshakeMessage: ((HLMessagePackage?) -> ())?
     public var onAgreedMessage: ((HLMessagePackage?) -> ())?
     public var onDeliveriedMessage: ((HLMessagePackage?) -> ())?
@@ -125,7 +126,7 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
         }
     }
     
-    func saveMessage(fromUserId: String, toUserId: String, textMessage: String, status: DyMessageStatus, block: (String?) -> Void) {
+    func saveMessage(fromUserId: String, toUserId: String, textMessage: String, status: DyMessageStatus, block: (String?) -> Void) -> DyMessage{
         
         let dyMessage = DyMessage()
         dyMessage.fromUserId = fromUserId
@@ -139,6 +140,7 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
                 block(dyMessage.id)
             }
         })
+        return dyMessage
     }
     
     func saveMessage(messageId: String, status: DyMessageStatus) {
@@ -218,13 +220,16 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
                         if let (decryptedData, _) = try? CC.RSA.decrypt(messagePackage.content.dataBase64!, derKey: (DyUser.currentUser?.privateKey)!, tag: HLUltils.RsaTag, padding: CC.RSA.AsymmetricPadding.oaep, digest: CC.DigestAlgorithm.sha1) {
                             let decryptedString = decryptedData.stringUTF8
                             messagePackage.content = decryptedString
-                            self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString!, status: DyMessageStatus.Deliveried,block: {(messageId) -> Void in
+                            let dyMessage = self.saveMessage(messagePackage.fromUser.id, toUserId: self.currentUser.id,textMessage: decryptedString!, status: DyMessageStatus.Deliveried,block: {(messageId) -> Void in
                                 if messageId != nil {
                                     print("[HL] Saved message. Id: \(messageId)")
                                 } else {
                                     print("[HL] Can't save message. Error: \(decryptedString)")
                                 }
                             })
+                            if let dyCallback = self.onReceivedDyMessage {
+                                dyCallback(dyMessage)
+                            }
                         }
                         self.sendDeliveriedOnUserChannel(messagePackage.fromUser.username, fromUser: self.currentUser, messageId: messagePackage.messageId)
                         callback(messagePackage)
