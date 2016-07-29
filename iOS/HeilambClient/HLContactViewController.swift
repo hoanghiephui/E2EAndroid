@@ -113,6 +113,15 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
         self.navigationController?.pushViewController(chatController, animated: true)
     }
     
+    
+    override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(animated)
+        if ((self.navigationController?.viewControllers.indexOf(self)) == nil) {
+            HLConnectionManager.shared.disconnect()
+            HLBleShareKey.shared.stop()
+        }
+    }
+    
     func onHandshakeMessage(messagePackage: HLMessagePackage?) {
         if  let mpg = messagePackage {
             self.contacts[mpg.fromUser.id] = mpg.fromUser

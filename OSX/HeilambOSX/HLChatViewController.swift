@@ -9,7 +9,7 @@
 import Foundation
 import Cocoa
 
-class HLChatViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource {
+class HLChatViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource, NSTextFieldDelegate {
     @IBOutlet weak var tableView: NSTableView!
     @IBOutlet weak var txtChatField: NSTextField!
     @IBOutlet weak var btnSend : NSButton!;
@@ -22,6 +22,7 @@ class HLChatViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(HLChatViewController.selectedContact(notification:)), name: "CONTACT_SELECTED_USER", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(HLChatViewController.cameMessageContact(notification:)), name: "CONTACT_INCOMING_DYMESSAGE", object: nil)
         self.btnSend.enabled = false
+        self.txtChatField.delegate = self
     }
     
     deinit {
@@ -90,7 +91,7 @@ class HLChatViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
     
     // MARK: - UI Control
     @IBAction func send(sender: AnyObject?) {
-        if self.txtChatField.stringValue.characters.count > 0 {
+        if self.txtChatField.stringValue.characters.count > 0 && self.opponentUser != nil {
             HLConnectionManager.shared.sendChatOnUserChannel(self.opponentUser, textMessage: self.txtChatField.stringValue)
             let dyMessage = DyMessage()
             dyMessage.fromUserId = DyUser.currentUser?.userId
@@ -101,5 +102,13 @@ class HLChatViewController: NSViewController, NSTableViewDelegate, NSTableViewDa
             self.txtChatField.stringValue = ""
             self.tableView.reloadData()
         }
+    }
+    
+    func control(control: NSControl, textView: NSTextView, doCommandBySelector commandSelector: Selector) -> Bool {
+        if commandSelector == #selector(NSControl.insertNewline) {
+            self.send(nil)
+            return true
+        }
+        return false
     }
 }

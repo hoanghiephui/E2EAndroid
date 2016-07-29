@@ -243,6 +243,7 @@ public class HLDynamoDBManager {
                                                 if (error == nil) {
                                                     let config = NSUserDefaults.standardUserDefaults();
                                                     config.setObject(username, forKey: "username")
+                                                    DyUser.clear()
                                                     DyUser.currentUser?.fetch({ (obj) in
                                                         block(nil)
                                                     })

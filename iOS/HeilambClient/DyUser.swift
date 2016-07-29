@@ -12,6 +12,10 @@ import RNCryptor
 
 public typealias HLResultUserBlock = (DyUser?) -> Void
 
+struct Static {
+    static var instance: DyUser? = nil
+}
+
 public class DyUser: AWSDynamoDBObjectModel {
     var v_id : String?
     var v_username: NSData?
@@ -110,10 +114,6 @@ public class DyUser: AWSDynamoDBObjectModel {
     }
     
     class var currentUser: DyUser? {
-        struct Static {
-            static var instance: DyUser? = nil
-        }
-        
         if (Static.instance == nil) {
             let config = NSUserDefaults.standardUserDefaults()
             if let username = config.objectForKey("username") as? String {
@@ -121,6 +121,10 @@ public class DyUser: AWSDynamoDBObjectModel {
             }
         }
         return Static.instance
+    }
+    
+    class func clear() {
+        Static.instance = nil
     }
     
     required public override init() {

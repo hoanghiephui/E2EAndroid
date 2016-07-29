@@ -29,6 +29,12 @@ class HLContactViewController: NSViewController, NSTableViewDelegate, NSTableVie
         self.connectAWSIot()
     }
     
+    @IBAction func logout(sender: AnyObject?) {
+        HLConnectionManager.shared.disconnect()
+        HLBleShareKey.shared.stop()
+        self.parentViewController?.dismissController(self)
+    }
+
     // MARK: - Connection
     
     func connectAWSIot() {
@@ -61,12 +67,14 @@ class HLContactViewController: NSViewController, NSTableViewDelegate, NSTableVie
     func onHandshakeMessage(messagePackage: HLMessagePackage?) {
         if  let mpg = messagePackage {
             self.contacts[mpg.fromUser.id] = mpg.fromUser
+            self.tableView.reloadData()
         }
     }
     
     func onAgreedMessage(messagePackage: HLMessagePackage?) {
         if  let mpg = messagePackage {
             self.contacts[mpg.fromUser.id] = mpg.fromUser
+            self.tableView.reloadData()
         }
     }
     

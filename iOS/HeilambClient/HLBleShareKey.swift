@@ -51,6 +51,7 @@ public class HLBleShareKey : BKPeripheralDelegate, BKCentralDelegate, BKRemotePe
     }
     
     func stop() {
+        self.central.interruptScan()
         _ = try? self.peripheral.stop()
         _ = try? self.central.stop()
     }

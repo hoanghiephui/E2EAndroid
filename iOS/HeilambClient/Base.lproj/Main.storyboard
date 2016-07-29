@@ -197,7 +197,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Signup" id="Msd-ig-Okf">
-                        <barButtonItem key="rightBarButtonItem" title="Login" id="9VU-Wq-4H8">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" id="9VU-Wq-4H8" userLabel="login">
                             <connections>
                                 <action selector="gotoLogin" destination="Pnd-Ay-BWi" id="WKo-ct-CJH"/>
                             </connections>
@@ -256,8 +256,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="UFC-P8-AI8"/>
-        <segue reference="DNA-nO-gM5"/>
+        <segue reference="PSk-iG-XKI"/>
         <segue reference="XF6-d3-D5q"/>
+        <segue reference="DNA-nO-gM5"/>
     </inferredMetricsTieBreakers>
 </document>

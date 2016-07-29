@@ -21,14 +21,12 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.usernameTextField.text = DyUser.currentUser?.username
-        self.passwordTextField.text = "1111"
+        self.navigationItem.setHidesBackButton(true, animated: false)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     func validInputs() -> Bool {
@@ -56,6 +54,7 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
         if (self.validInputs()) {
             self.connectButton.enabled = false
             self.activityIndicatorView.startAnimating()
+            UIApplication.sharedApplication().keyWindow?.endEditing(true)
             HLDynamoDBManager.shared.login(self.usernameTextField.text!, password: self.passwordTextField.text!, withBlock: { (error) in
                 self.activityIndicatorView.stopAnimating()
                 self.connectButton.enabled = true

@@ -55,6 +55,12 @@ public class HLConnectionManager : HLBleShareKeyDelegate {
         publicKeys = [:]
     }
     
+    public func disconnect() {
+        self.iotDataManager.unsubscribeTopic(kHandshakeChannel)
+        self.iotDataManager.unsubscribeTopic(self.currentUser.username)
+        self.iotDataManager.disconnect()
+    }
+    
     public func connectWithUser(user: HLUser!, statusCallback callback: ((Bool) -> Void)!) {
         self.currentUser = user
         let myBundle = NSBundle.mainBundle()

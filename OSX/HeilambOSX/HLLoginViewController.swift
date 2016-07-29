@@ -21,8 +21,14 @@ class HLLoginViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        txtUsername.stringValue = "sinbadflyce"
-        txtPassword.stringValue = "1111"
+        if let usn = DyUser.currentUser?.username {
+            txtUsername.stringValue = usn
+        } else {
+#if false
+            txtUsername.stringValue = "david"
+            txtPassword.stringValue = "1111"
+#endif
+        }
     }
 
     override var representedObject: AnyObject? {
@@ -48,6 +54,10 @@ class HLLoginViewController: NSViewController {
                 self.performSegueWithIdentifier("login_to_split", sender: self)
             }
         };
+    }
+    
+    @IBAction func signup(sender: AnyObject!) {
+        self.performSegueWithIdentifier("login_to_signup", sender: self)
     }
 }
 

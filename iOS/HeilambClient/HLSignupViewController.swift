@@ -20,18 +20,13 @@ class HLSignupViewController: UIViewController {
     @IBOutlet weak var indicatorView: UIActivityIndicatorView?
     
     override func viewDidLoad() {
-        
-        #if (arch(i386) || arch(x86_64)) && os(iOS)
-            usernameTextField?.text = "sinbadflyce"
-            fullnameTextField?.text = "Sinbad Flyce"
-            passwordTextField?.text = "1111"
-            repaswwordTextField?.text = "1111"
-        #else
+        super.viewDidLoad()
+#if false
             usernameTextField?.text = "yusuf"
             fullnameTextField?.text = "Yusuf Saib"
             passwordTextField?.text = "1111"
             repaswwordTextField?.text = "1111"
-        #endif
+#endif
     }
     
     func validInputs() -> Bool {
@@ -67,6 +62,7 @@ class HLSignupViewController: UIViewController {
         if validInputs() {
             self.indicatorView?.hidden = false
             self.indicatorView?.startAnimating()
+            UIApplication.sharedApplication().keyWindow?.endEditing(true)
             HLDynamoDBManager.shared.signUp((self.usernameTextField?.text)!, password: (self.passwordTextField?.text)!, fullname: (self.fullnameTextField?.text)!, withBlock: { (error) in
                 self.indicatorView?.stopAnimating()
                 if let err = error {
