@@ -9,7 +9,7 @@
 
 import UIKit
 
-class HLLoginViewController: UIViewController, LGChatControllerDelegate {
+class HLLoginViewController: UIViewController, LGChatControllerDelegate, UITextFieldDelegate {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var connectButton: UIButton!
     @IBOutlet weak var usernameTextField: UITextField!
@@ -71,6 +71,11 @@ class HLLoginViewController: UIViewController, LGChatControllerDelegate {
                 }
             })
         }
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
 

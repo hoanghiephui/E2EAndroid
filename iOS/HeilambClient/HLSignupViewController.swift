@@ -11,7 +11,7 @@ import UIKit
 import AWSDynamoDB
 import RNCryptor
 
-class HLSignupViewController: UIViewController {
+class HLSignupViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var usernameTextField : UITextField?
     @IBOutlet weak var passwordTextField: UITextField?
     @IBOutlet weak var repaswwordTextField: UITextField?;
@@ -21,6 +21,7 @@ class HLSignupViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.setHidesBackButton(true, animated: false)
 #if false
             usernameTextField?.text = "yusuf"
             fullnameTextField?.text = "Yusuf Saib"
@@ -73,5 +74,10 @@ class HLSignupViewController: UIViewController {
                 }
             });
         }
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

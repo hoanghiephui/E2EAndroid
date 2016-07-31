@@ -83,7 +83,14 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Contact-Cell")
+        self.navigationItem.setHidesBackButton(true, animated: false)
         self.connectAWSIot()
+    }
+    
+    @IBAction func signOut(sender: AnyObject!) {
+        HLConnectionManager.shared.disconnect()
+        HLBleShareKey.shared.stop()
+        self.navigationController?.popViewControllerAnimated(true)
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -116,10 +123,6 @@ class HLContactViewController: UIViewController, UITableViewDelegate, UITableVie
     
     override func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
-        if ((self.navigationController?.viewControllers.indexOf(self)) == nil) {
-            HLConnectionManager.shared.disconnect()
-            HLBleShareKey.shared.stop()
-        }
     }
     
     func onHandshakeMessage(messagePackage: HLMessagePackage?) {
