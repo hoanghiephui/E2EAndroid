@@ -212,7 +212,7 @@ public class HLDynamoDBManager {
                 let dyUser = DyUser(username: username)
                 self.fetchModel(DyUser.self, haskKey: dyUser.userId!, block: { (model) in
                     if (model == nil) {
-                        if let salt = HLUltils.SaltData {
+                        if  let salt = HLUltils.SaltData {
                             let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt)
                             let randomSalt = HLUltils.generateTagPrefix(8).dataUTF8!
                             let keyK = RNCryptor.FormatV3.keyForPassword(password, salt: randomSalt)

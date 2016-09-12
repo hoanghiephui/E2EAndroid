@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">E2EAndroid</string>
+    <string name="conntect">Connect</string>
+    <string name="username">Username</string>
+    <string name="full_name">Full name</string>
+    <string name="password">Password</string>
+    <string name="re_type_password">Re-type Password</string>
+    <string name="signup">Signup</string>
+</resources>

@@ -15,7 +15,7 @@ public typealias HLResultUserBlock = (DyUser?) -> Void
 struct Static {
     static var instance: DyUser? = nil
 }
-
+    
 public class DyUser: AWSDynamoDBObjectModel {
     var v_id : String?
     var v_username: NSData?
