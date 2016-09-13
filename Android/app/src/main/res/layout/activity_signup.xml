@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_form_rounded"
         android:hint="@string/full_name"
-        android:inputType="textPassword"
+        android:inputType="text"
         android:padding="15dp" />
 
 

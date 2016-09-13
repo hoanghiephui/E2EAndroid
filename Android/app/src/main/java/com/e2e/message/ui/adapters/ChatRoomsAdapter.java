@@ -40,7 +40,7 @@ public class ChatRoomsAdapter extends RecyclerView.Adapter<ChatRoomsAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.tvUser.setText(data.get(position).getFullName());
+        //holder.tvUser.setText(data.get(position).getFullName());
         holder.tvUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

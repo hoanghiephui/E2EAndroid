@@ -150,7 +150,7 @@ public class DyUser: AWSDynamoDBObjectModel {
     }
     
     class func dynamoDBTableName() -> String {
-        return "HL_User"
+        return "  "
     }
     
     class func ignoreAttributes() -> [String] {
