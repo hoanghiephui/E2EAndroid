@@ -1,13 +1,23 @@
 package com.e2e.message.utils;
 
+import android.util.Base64;
+
+import org.cryptonode.jncryptor.AES256JNCryptor;
+import org.cryptonode.jncryptor.CryptorException;
+import org.cryptonode.jncryptor.JNCryptor;
 import org.spongycastle.util.encoders.DecoderException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import static org.apache.commons.codec.binary.Hex.decodeHex;
@@ -56,4 +66,29 @@ public class KeyStoreUtils {
         SecretKey key = new SecretKeySpec(encoded, ALGO);
         return key;
     }
+
+    public static SecretKey getSecretKey(char[] password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        // NOTE: last argument is the key length, and it is 128
+        KeySpec spec = new PBEKeySpec(password, salt, 1024, 128);
+        SecretKey tmp = factory.generateSecret(spec);
+        return new SecretKeySpec(tmp.getEncoded(), "AES");
+    }
+
+    public static String decrypt(JNCryptor cryptor, byte[] encryptedData, String password) {
+        byte[] decryptData = null;
+        try {
+            decryptData = cryptor.decryptData(Base64.decode(encryptedData, Base64.URL_SAFE), password.toCharArray());
+        } catch (CryptorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if (decryptData != null){
+            return Base64.encodeToString(decryptData, Base64.URL_SAFE);
+        }else {
+            return "";
+        }
+    }
+
+
 }

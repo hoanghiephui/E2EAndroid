@@ -1,13 +1,18 @@
 package com.e2e.message.data;
 
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
+
+import java.io.Serializable;
 
 /**
  * Created by hiep on 9/12/16.
  */
 @DynamoDBTable(tableName = Constants.HL_USER_TABLE_NAME)
-public class UserResponse {
+public class UserResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String id;
     private byte[] userName;
     private byte[] fullName;
@@ -21,27 +26,27 @@ public class UserResponse {
         return id;
     }
 
-    @DynamoDBHashKey(attributeName = "v_username")
+    @DynamoDBAttribute(attributeName = "v_username")
     public byte[] getUserName() {
         return userName;
     }
 
-    @DynamoDBHashKey(attributeName = "v_fullname")
+    @DynamoDBAttribute(attributeName = "v_fullname")
     public byte[] getFullName() {
         return fullName;
     }
 
-    @DynamoDBHashKey(attributeName = "v_keyK")
+    @DynamoDBAttribute(attributeName = "v_keyK")
     public byte[] getKeyK() {
         return keyK;
     }
 
-    @DynamoDBHashKey(attributeName = "v_privateKey")
+    @DynamoDBAttribute(attributeName = "v_privateKey")
     public byte[] getPrivateKey() {
         return privateKey;
     }
 
-    @DynamoDBHashKey(attributeName = "v_publicKey")
+    @DynamoDBAttribute(attributeName = "v_publicKey")
     public byte[] getPublicKey() {
         return publicKey;
     }

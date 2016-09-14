@@ -4,12 +4,15 @@ import android.content.Context;
 import android.util.Log;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSAbstractCognitoIdentityProvider;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBDocument;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+
+import static com.e2e.message.data.Constants.IDENTITY_POOL_ID;
 
 /**
  * Created by hiep on 9/13/16.
@@ -31,8 +34,8 @@ public class AmazonClientManager {
     }
 
     public boolean hasCredentials() {
-        return (!(Constants.IDENTITY_POOL_ID.equalsIgnoreCase("us-east-1:1fb9f1c3-fe33-431f-88e8-c01cac2cf832")
-                || Constants.HL_USER_TABLE_NAME.equalsIgnoreCase("us-east-1:1fb9f1c3-fe33-431f-88e8-c01cac2cf832")));
+        return (!(IDENTITY_POOL_ID.equalsIgnoreCase("us-east-1:1fb9f1c3-fe33-431f-88e8-c01cac2cf832")
+                || Constants.HL_USER_TABLE_NAME.equalsIgnoreCase("HL_User")));
     }
 
     public void validateCredentials() {
@@ -45,11 +48,11 @@ public class AmazonClientManager {
     private void initClients() {
         CognitoCachingCredentialsProvider credentials = new CognitoCachingCredentialsProvider(
                 context,
-                Constants.IDENTITY_POOL_ID,
+                IDENTITY_POOL_ID,
                 Regions.US_EAST_1);
 
         ddb = new AmazonDynamoDBClient(credentials);
-        ddb.setRegion(Region.getRegion(Regions.US_WEST_2));
+        ddb.setRegion(Region.getRegion(Regions.US_EAST_1));
     }
 
     public boolean wipeCredentialsOnAuthError(AmazonServiceException ex) {

@@ -13,6 +13,7 @@ import com.e2e.message.R;
 import com.e2e.message.crypto.Crypto;
 import com.e2e.message.crypto.RSA;
 import com.e2e.message.data.AmazonClientManager;
+import com.e2e.message.data.Constants;
 import com.e2e.message.data.DynamoDBManager;
 import com.e2e.message.data.UserResponse;
 import com.e2e.message.utils.HLUltils;
@@ -37,6 +38,10 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import static com.e2e.message.data.Constants.ACTIVE;
+import static com.e2e.message.utils.HLUltils.UTF_8;
+import static com.e2e.message.utils.KeyStoreUtils.decrypt;
+import static com.e2e.message.utils.KeyStoreUtils.getSecretKey;
 import static com.e2e.message.utils.KeyStoreUtils.loadKey;
 
 /**
@@ -47,8 +52,8 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     private EditText edtUserName, edtPassword, edtFullName, edtReTypePassword;
     private Button btnSignUp;
 
-    SecretKey keyQ;
-    SecretKey keyK;
+    String keyQ;
+    private byte[] keyK;
     public static AmazonClientManager clientManager = null;
 
     @Override
@@ -116,32 +121,38 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
             JNCryptor cryptor = new AES256JNCryptor();
 
             try {
-                keyK = getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes());
-                keyQ = getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt());
+                String ss = HLUltils.generateTagPrefix(8);
+                Log.d(TAG, "onSignUp: leng salt"+ ss.getBytes(UTF_8).length);
+                keyK = cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes(UTF_8)).getEncoded();
+                       // getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes()).getEncoded();
+                keyQ = Base64.encodeToString(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), Base64.URL_SAFE);
+                        //Base64.encodeToString(getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), Base64.NO_WRAP);
 
-                byte[] keyEncryptedK = cryptor.encryptData(HLUltils.getkSalt(),
-                        keyK, keyQ);
-                String decryptedKeyK = Base64.encodeToString(keyEncryptedK, Base64.DEFAULT);
-                Log.d(TAG, "onSignUp: " + decryptedKeyK);
+
+
+                byte[] keyEncryptedK = cryptor.encryptData(keyK , keyQ.toCharArray());
+
+                String keyDecrypt = Base64.encodeToString(keyK, Base64.URL_SAFE) ;
+
+                Log.d(TAG, "onSignUp: keyEncrypt " + keyDecrypt);
 
                 //luu keyQ
 
                 File file = File.createTempFile("keyQ", ".key");
-                KeyStoreUtils.saveKey(keyQ, file);
+                KeyStoreUtils.saveKey(getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()), file);
 
 
                 SecretKey persistedKey = loadKey(file);
-                Log.d(TAG, "onSignUp: keyQ :" + Base64.encodeToString(keyQ.getEncoded(), Base64.DEFAULT) + " keyQ File: " + Base64.encodeToString(persistedKey.getEncoded(), Base64.DEFAULT));
+                Log.d(TAG, "onSignUp: keyQ :" + keyQ + " keyQ File: " + Base64.encodeToString(persistedKey.getEncoded(), Base64.URL_SAFE));
 
                 //ma hoa user
                 user.setId(StringUtil.uniqueFromString(edtUserName.getText().toString()));
-                user.setUserName(cryptor.encryptData(edtUserName.getText().toString().getBytes(), decryptedKeyK.toCharArray()));
-                user.setFullName(cryptor.encryptData(edtFullName.getText().toString().getBytes(), decryptedKeyK.toCharArray()));
+                user.setUserName(cryptor.encryptData(edtUserName.getText().toString().getBytes(), keyDecrypt.toCharArray()));
+                user.setFullName(cryptor.encryptData(edtFullName.getText().toString().getBytes(), keyDecrypt.toCharArray()));
                 user.setKeyK(keyEncryptedK);
-                user.setPrivateKey(cryptor.encryptData(privateKeyPref.getBytes(), decryptedKeyK.toCharArray()));
-                user.setPublicKey(cryptor.encryptData(publicKeyPref.getBytes(), decryptedKeyK.toCharArray()));
-                new DynamoDBManagerTask()
-                        .execute(DynamoDBManagerType.INSERT_USER);
+                user.setPrivateKey(cryptor.encryptData(privateKeyPref.getBytes(), keyDecrypt.toCharArray()));
+                user.setPublicKey(cryptor.encryptData(publicKeyPref.getBytes(), keyDecrypt.toCharArray()));
+                new DynamoDBManagerTask().execute(user);
 
             } catch (CryptorException e) {
                 // Something went wrong
@@ -158,95 +169,55 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
-    public static SecretKey getSecretKey(char[] password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        // NOTE: last argument is the key length, and it is 128
-        KeySpec spec = new PBEKeySpec(password, salt, 1024, 128);
-        SecretKey tmp = factory.generateSecret(spec);
-        return new SecretKeySpec(tmp.getEncoded(), "AES");
-    }
 
-    private class DynamoDBManagerTask extends
-            AsyncTask<DynamoDBManagerType, Void, DynamoDBManagerTaskResult> {
 
-        protected DynamoDBManagerTaskResult doInBackground(
-                DynamoDBManagerType... types) {
+    private class DynamoDBManagerTask extends AsyncTask<UserResponse, Void, DynamoDBManagerTaskResult>{
 
-            String tableStatus = DynamoDBManager.getTableStatus();
+
+
+
+        @Override
+        protected DynamoDBManagerTaskResult doInBackground(UserResponse... userResponses) {
+            String tableStatus = DynamoDBManager.getTableStatus(SignUpActivity.this, Constants.HL_USER_TABLE_NAME);
 
             DynamoDBManagerTaskResult result = new DynamoDBManagerTaskResult();
             result.setTableStatus(tableStatus);
-            result.setTaskType(types[0]);
-
-            if (types[0] == DynamoDBManagerType.CREATE_TABLE) {
-                if (tableStatus.length() == 0) {
-                    //DynamoDBManager.createTable();
+            if (tableStatus.equalsIgnoreCase(ACTIVE)) {
+                DynamoDBManager.insertUsers(userResponses[0]);
+                String tabbleContact = DynamoDBManager.getTableStatus(SignUpActivity.this, "HL_" + userResponses[0].getId() + "_Contact");
+                if (!tabbleContact.equalsIgnoreCase("ACTIVE")){
+                    DynamoDBManager.createContactDBTable(SignUpActivity.this, userResponses[0]);
                 }
-            } else if (types[0] == DynamoDBManagerType.INSERT_USER) {
-                if (tableStatus.equalsIgnoreCase("ACTIVE")) {
-                    DynamoDBManager.insertUsers();
-                }
-            } else if (types[0] == DynamoDBManagerType.LIST_USERS) {
-                if (tableStatus.equalsIgnoreCase("ACTIVE")) {
-                    //DynamoDBManager.getUserList();
-                }
-            } else if (types[0] == DynamoDBManagerType.CLEAN_UP) {
-                if (tableStatus.equalsIgnoreCase("ACTIVE")) {
-                    //DynamoDBManager.cleanUp();
-                }
+                DynamoDBManager.createMessageDBTable(SignUpActivity.this, userResponses[0]);
             }
 
             return result;
         }
 
+        @Override
         protected void onPostExecute(DynamoDBManagerTaskResult result) {
-
-            if (result.getTaskType() == DynamoDBManagerType.CREATE_TABLE) {
-
-                if (result.getTableStatus().length() != 0) {
-                    Toast.makeText(
-                            SignUpActivity.this,
-                            "The test table already exists.\nTable Status: "
-                                    + result.getTableStatus(),
-                            Toast.LENGTH_LONG).show();
-                }
-
-            } else if (result.getTaskType() == DynamoDBManagerType.LIST_USERS
-                    && result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
-
-                /*startActivity(new Intent(UserPreferenceDemoActivity.this,
-                        UserListActivity.class));*/
-
-            } else if (!result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
+            if (!result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
 
                 Toast.makeText(
                         SignUpActivity.this,
                         "The test table is not ready yet.\nTable Status: "
                                 + result.getTableStatus(), Toast.LENGTH_LONG)
                         .show();
-            } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE")
-                    && result.getTaskType() == DynamoDBManagerType.INSERT_USER) {
+            } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
                 Toast.makeText(SignUpActivity.this,
                         "Users inserted successfully!", Toast.LENGTH_SHORT).show();
+                SignUpActivity.this.finish();
             }
         }
     }
 
-    private enum DynamoDBManagerType {
-        GET_TABLE_STATUS, CREATE_TABLE, INSERT_USER, LIST_USERS, CLEAN_UP
-    }
+
+
+
 
     private class DynamoDBManagerTaskResult {
-        private DynamoDBManagerType taskType;
+
         private String tableStatus;
-
-        public DynamoDBManagerType getTaskType() {
-            return taskType;
-        }
-
-        public void setTaskType(DynamoDBManagerType taskType) {
-            this.taskType = taskType;
-        }
 
         public String getTableStatus() {
             return tableStatus;

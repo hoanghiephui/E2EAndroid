@@ -9,7 +9,7 @@ import java.util.Random;
 public class HLUltils {
     public static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    public static byte[] kSalt = "HL-SALT".getBytes(UTF_8);
+    public static byte[] kSalt = "HL_SALTA".getBytes(UTF_8);
     public static byte[] kRSATag = "com.yusuf.e2e".getBytes(UTF_8);
 
     public static byte[] getkSalt() {
@@ -25,7 +25,7 @@ public class HLUltils {
         StringBuilder sb = new StringBuilder(length);
         Random r = new Random();
         for (int i = 0; i < length; i++) {
-            sb.append("%C").append(letters.charAt(r.nextInt(letters.length())));
+            sb.append(letters.charAt(r.nextInt(letters.length())));
         }
         return sb.toString();
     }

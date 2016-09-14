@@ -22,6 +22,7 @@ public class Constants {
     public static final String PolicyName = "heilamb_ios";
 
     public static final String kKeychainDB = "HEILAMB";
+    public static final String ACTIVE = "ACTIVE";
 
 
 
