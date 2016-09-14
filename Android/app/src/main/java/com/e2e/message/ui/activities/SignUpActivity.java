@@ -29,19 +29,11 @@ import org.cryptonode.jncryptor.JNCryptor;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
 import static com.e2e.message.data.Constants.ACTIVE;
 import static com.e2e.message.utils.HLUltils.UTF_8;
-import static com.e2e.message.utils.KeyStoreUtils.decrypt;
-import static com.e2e.message.utils.KeyStoreUtils.getSecretKey;
 import static com.e2e.message.utils.KeyStoreUtils.loadKey;
 
 /**
@@ -121,45 +113,43 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
             JNCryptor cryptor = new AES256JNCryptor();
 
             try {
-                String ss = HLUltils.generateTagPrefix(8);
-                Log.d(TAG, "onSignUp: leng salt"+ ss.getBytes(UTF_8).length);
                 keyK = cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes(UTF_8)).getEncoded();
-                       // getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes()).getEncoded();
-                keyQ = Base64.encodeToString(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), Base64.URL_SAFE);
-                        //Base64.encodeToString(getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), Base64.NO_WRAP);
+
+                keyQ = new String(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), UTF_8);
+
 
 
 
                 byte[] keyEncryptedK = cryptor.encryptData(keyK , keyQ.toCharArray());
 
-                String keyDecrypt = Base64.encodeToString(keyK, Base64.URL_SAFE) ;
+                String keyKBase64 = new String(this.keyK, UTF_8);
 
-                Log.d(TAG, "onSignUp: keyEncrypt " + keyDecrypt);
+
 
                 //luu keyQ
 
                 File file = File.createTempFile("keyQ", ".key");
-                KeyStoreUtils.saveKey(getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()), file);
+                KeyStoreUtils.saveKey(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()), file);
 
 
                 SecretKey persistedKey = loadKey(file);
-                Log.d(TAG, "onSignUp: keyQ :" + keyQ + " keyQ File: " + Base64.encodeToString(persistedKey.getEncoded(), Base64.URL_SAFE));
-
+                Log.d(TAG, "onSignUp: keyK " + keyKBase64);
+                Log.d(TAG, "onSignUp: keyQ :" + keyQ);
+                Log.d(TAG, "onSignUp: keyQ File: " + new String(persistedKey.getEncoded(), UTF_8));
+                Log.d(TAG, "onSignUp: keyEnCry :" + Base64.encodeToString(keyEncryptedK, Base64.NO_PADDING));
                 //ma hoa user
                 user.setId(StringUtil.uniqueFromString(edtUserName.getText().toString()));
-                user.setUserName(cryptor.encryptData(edtUserName.getText().toString().getBytes(), keyDecrypt.toCharArray()));
-                user.setFullName(cryptor.encryptData(edtFullName.getText().toString().getBytes(), keyDecrypt.toCharArray()));
+                user.setUserName(cryptor.encryptData(edtUserName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()));
+                user.setFullName(cryptor.encryptData(edtFullName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()));
                 user.setKeyK(keyEncryptedK);
-                user.setPrivateKey(cryptor.encryptData(privateKeyPref.getBytes(), keyDecrypt.toCharArray()));
-                user.setPublicKey(cryptor.encryptData(publicKeyPref.getBytes(), keyDecrypt.toCharArray()));
+                user.setPrivateKey(cryptor.encryptData(privateKeyPref.getBytes(UTF_8), keyKBase64.toCharArray()));
+                user.setPublicKey(cryptor.encryptData(publicKeyPref.getBytes(UTF_8), keyKBase64.toCharArray()));
                 new DynamoDBManagerTask().execute(user);
-
+                Log.d(TAG, "onSignUp: userName: " + new String(cryptor.encryptData(edtUserName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()), UTF_8));
+                byte [] userName = cryptor.decryptData(user.getUserName(), keyKBase64.toCharArray());
+                Log.d(TAG, "onSignUp: userUn: " + new String(userName, UTF_8));
             } catch (CryptorException e) {
                 // Something went wrong
-                e.printStackTrace();
-            } catch (InvalidKeySpecException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();

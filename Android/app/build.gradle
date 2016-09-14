@@ -39,5 +39,4 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-iot:2.2.+'
     compile 'com.amazonaws:aws-android-sdk-ddb:2.2.+'
     compile 'com.amazonaws:aws-android-sdk-cognito:2.2.+'
-
 }

@@ -78,13 +78,13 @@ public class KeyStoreUtils {
     public static String decrypt(JNCryptor cryptor, byte[] encryptedData, String password) {
         byte[] decryptData = null;
         try {
-            decryptData = cryptor.decryptData(Base64.decode(encryptedData, Base64.URL_SAFE), password.toCharArray());
+            decryptData = cryptor.decryptData(Base64.decode(encryptedData, Base64.DEFAULT), password.toCharArray());
         } catch (CryptorException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         if (decryptData != null){
-            return Base64.encodeToString(decryptData, Base64.URL_SAFE);
+            return Base64.encodeToString(decryptData, Base64.NO_WRAP);
         }else {
             return "";
         }

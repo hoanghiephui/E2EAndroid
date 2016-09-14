@@ -24,15 +24,9 @@ import org.cryptonode.jncryptor.CryptorException;
 import org.cryptonode.jncryptor.InvalidHMACException;
 import org.cryptonode.jncryptor.JNCryptor;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
-import javax.crypto.SecretKey;
-
 import static com.e2e.message.data.Constants.ACTIVE;
 import static com.e2e.message.data.Constants.HL_USER_TABLE_NAME;
-import static com.e2e.message.utils.KeyStoreUtils.decrypt;
-import static com.e2e.message.utils.KeyStoreUtils.getSecretKey;
+import static com.e2e.message.utils.HLUltils.UTF_8;
 
 /**
  * Created by hiep on 9/12/16.
@@ -140,24 +134,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE") && result.getTaskType() == DynamoDBManagerType.USER) {
                 Toast.makeText(LoginActivity.this, "Login successfully!", Toast.LENGTH_SHORT).show();
                 if (userInfo != null){
-                    //Log.d(TAG, "onPostExecute: " + Base64.encodeToString(userInfo.getKeyK(), Base64.NO_WRAP));
+                    //Log.d(TAG, "onPostExecute: " + Base64.encodeToString(userInfo.getKeyK(), Base64.DEFAULT));
                     JNCryptor cryptor = new AES256JNCryptor();
                     byte[] encryptedKeyK = userInfo.getKeyK();
                     if (encryptedKeyK != null) {
                         try {
-                            keyQ = Base64.encodeToString(getSecretKey(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), Base64.NO_WRAP);
+                            keyQ = new String(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), UTF_8);
 
 
                             byte[] keyDecrypt = cryptor.decryptData(encryptedKeyK, keyQ.toCharArray());
-                            String userName =  decrypt(cryptor, userInfo.getUserName(), Base64.encodeToString(keyDecrypt, Base64.URL_SAFE));
+                            byte[] userName = cryptor.decryptData(userInfo.getUserName(), new String(keyDecrypt, UTF_8).toCharArray());
+                            byte[] publicKey = cryptor.decryptData(userInfo.getPrivateKey(), new String(keyDecrypt, UTF_8).toCharArray());
+                            //String userName =  decrypt(cryptor, userInfo.getUserName(), Base64.encodeToString(keyDecrypt, Base64.DEFAULT));
                             Log.d(TAG, "onPostExecute: keyQ: " + keyQ);
-                            Log.d(TAG, "onPostExecute: keyK: " + Base64.encodeToString(encryptedKeyK, Base64.URL_SAFE));
-                            Log.d(TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString(keyDecrypt, Base64.URL_SAFE));
-                            Log.d(TAG, "onPostExecute: userName: " + userName);
-                        } catch (NoSuchAlgorithmException e) {
-                            e.printStackTrace();
-                        } catch (InvalidKeySpecException e) {
-                            e.printStackTrace();
+                            Log.d(TAG, "onPostExecute: keyK: " + Base64.encodeToString(encryptedKeyK, Base64.NO_PADDING));
+                            Log.d(TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString(keyDecrypt, Base64.NO_PADDING));
+                            Log.d(TAG, "onPostExecute: userName: " + new String(userInfo.getUserName(), UTF_8) + "    " + new String(userName, UTF_8));
+                            Log.d(TAG, "onPostExecute: publicKey: " + new String(publicKey, UTF_8));
                         } catch (InvalidHMACException e) {
                             Toast.makeText(LoginActivity.this, "The password is wrong. Please enter an other", Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
