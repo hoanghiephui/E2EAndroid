@@ -18,4 +18,14 @@ public class StringUtil {
     public static boolean isNullOrEmpty(String str) {
         return str == null || str.isEmpty();
     }
+
+    public static boolean checkPassWordAndConfirmPassword (String password, String confirmPassword) {
+        boolean pstatus = false;
+        if (confirmPassword != null && password != null) {
+            if (password.equals (confirmPassword)) {
+                pstatus = true;
+            }
+        }
+        return pstatus;
+    }
 }

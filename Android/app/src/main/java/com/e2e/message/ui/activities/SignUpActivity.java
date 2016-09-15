@@ -34,6 +34,7 @@ import java.security.KeyPair;
 
 import static com.e2e.message.data.Constants.ACTIVE;
 import static com.e2e.message.utils.HLUltils.UTF_8;
+import static com.e2e.message.utils.StringUtil.checkPassWordAndConfirmPassword;
 
 /**
  * Created by hiep on 9/12/16.
@@ -108,7 +109,11 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                         StringUtil.isEmptyString(edtPassword.getText().toString())) {
                     Toast.makeText(this, "Username or Full name or Password null", Toast.LENGTH_SHORT).show();
                 } else {
-                    onSignUp();
+                    if (checkPassWordAndConfirmPassword (edtPassword.getText ().toString (), edtReTypePassword.getText ().toString ())) {
+                        onSignUp ();
+                    } else {
+                        Toast.makeText (this, "Passwords not matching.please try again", Toast.LENGTH_SHORT).show ();
+                    }
                 }
 
                 break;
