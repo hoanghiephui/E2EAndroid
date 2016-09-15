@@ -1,5 +1,7 @@
 package com.e2e.message.data;
 
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
 /**
@@ -14,6 +16,7 @@ public class ContactResponse{
     private byte[] v_ctFullname;
     private byte[] v_ctPublicKey;
 
+    @DynamoDBHashKey(attributeName = "v_ctId")
     public String getV_ctId() {
         return v_ctId;
     }
@@ -22,6 +25,7 @@ public class ContactResponse{
         this.v_ctId = v_ctId;
     }
 
+    @DynamoDBAttribute(attributeName = "v_ctUsername")
     public byte[] getV_ctUsername() {
         return v_ctUsername;
     }
@@ -30,6 +34,7 @@ public class ContactResponse{
         this.v_ctUsername = v_ctUsername;
     }
 
+    @DynamoDBAttribute(attributeName = "v_ctFullname")
     public byte[] getV_ctFullname() {
         return v_ctFullname;
     }
@@ -38,6 +43,7 @@ public class ContactResponse{
         this.v_ctFullname = v_ctFullname;
     }
 
+    @DynamoDBAttribute(attributeName = "v_ctPublicKey")
     public byte[] getV_ctPublicKey() {
         return v_ctPublicKey;
     }

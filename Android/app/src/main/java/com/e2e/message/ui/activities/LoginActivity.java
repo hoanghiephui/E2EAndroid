@@ -11,8 +11,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.e2e.message.MainActivity;
 import com.e2e.message.R;
 import com.e2e.message.data.DynamoDBManager;
 import com.e2e.message.data.UserResponse;
@@ -35,6 +37,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private static final String TAG = LoginActivity.class.getSimpleName();
     private EditText edtUserName, edtPassword;
     private Button btnConnect;
+    private ProgressBar progressLogin;
     private String keyQ;
     private String userId;
     private UserResponse userInfo = null;
@@ -55,6 +58,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         this.edtUserName = (EditText) findViewById(R.id.edtUserName);
         this.edtPassword = (EditText) findViewById(R.id.edtPassword);
         this.btnConnect = (Button) findViewById(R.id.btnConnect);
+        this.progressLogin = (ProgressBar) findViewById(R.id.progressLogin);
         btnConnect.setOnClickListener(this);
     }
 
@@ -104,24 +108,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     private void login(){
         userId = StringUtil.uniqueFromString(edtUserName.getText().toString());
-        new DynamoDBManagerTask().execute(DynamoDBManagerType.USER);
+        new DynamoDBManagerTask().execute();
+        progressLogin.setVisibility(View.VISIBLE);
+        btnConnect.setEnabled(false);
     }
 
-    private class DynamoDBManagerTask extends AsyncTask<DynamoDBManagerType, Void, DynamoDBManagerTaskResult> {
-
-
+    private class DynamoDBManagerTask extends AsyncTask<Void, Void, DynamoDBManagerTaskResult> {
 
         @Override
-        protected DynamoDBManagerTaskResult doInBackground(DynamoDBManagerType... type) {
+        protected DynamoDBManagerTaskResult doInBackground(Void... voids) {
             String tableStatus = DynamoDBManager.getTableStatus(LoginActivity.this, HL_USER_TABLE_NAME);
 
             DynamoDBManagerTaskResult result = new DynamoDBManagerTaskResult();
             result.setTableStatus(tableStatus);
-            result.setTaskType(type[0]);
+
             if (tableStatus.equalsIgnoreCase(ACTIVE)) {
                 userInfo = DynamoDBManager.getUserById(LoginActivity.this, userId);
             }
-
             return result;
         }
 
@@ -131,10 +134,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 Toast.makeText(LoginActivity.this,
                         "The test table is not ready yet.\nTable Status: "
                                 + result.getTableStatus(), Toast.LENGTH_LONG).show();
-            } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE") && result.getTaskType() == DynamoDBManagerType.USER) {
-                Toast.makeText(LoginActivity.this, "Login successfully!", Toast.LENGTH_SHORT).show();
+                progressLogin.setVisibility(View.GONE);
+                btnConnect.setEnabled(true);
+            } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
+
                 if (userInfo != null){
-                    //Log.d(TAG, "onPostExecute: " + Base64.encodeToString(userInfo.getKeyK(), Base64.DEFAULT));
                     JNCryptor cryptor = new AES256JNCryptor();
                     byte[] encryptedKeyK = userInfo.getKeyK();
                     if (encryptedKeyK != null) {
@@ -145,54 +149,46 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             byte[] keyDecrypt = cryptor.decryptData(encryptedKeyK, keyQ.toCharArray());
                             byte[] userName = cryptor.decryptData(userInfo.getUserName(), new String(keyDecrypt, UTF_8).toCharArray());
                             byte[] publicKey = cryptor.decryptData(userInfo.getPrivateKey(), new String(keyDecrypt, UTF_8).toCharArray());
-                            //String userName =  decrypt(cryptor, userInfo.getUserName(), Base64.encodeToString(keyDecrypt, Base64.DEFAULT));
+                            byte[] privateKey = cryptor.decryptData(userInfo.getPrivateKey(), new String(keyDecrypt, UTF_8).toCharArray());
+                            byte[] fullName = cryptor.decryptData(userInfo.getFullName(), new String(keyDecrypt, UTF_8).toCharArray());
+
                             Log.d(TAG, "onPostExecute: keyQ: " + keyQ);
                             Log.d(TAG, "onPostExecute: keyK: " + Base64.encodeToString(encryptedKeyK, Base64.NO_PADDING));
                             Log.d(TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString(keyDecrypt, Base64.NO_PADDING));
                             Log.d(TAG, "onPostExecute: userName: " + new String(userInfo.getUserName(), UTF_8) + "    " + new String(userName, UTF_8));
                             Log.d(TAG, "onPostExecute: publicKey: " + new String(publicKey, UTF_8));
+
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            LoginActivity.this.finish();
                         } catch (InvalidHMACException e) {
+                            progressLogin.setVisibility(View.GONE);
+                            btnConnect.setEnabled(true);
                             Toast.makeText(LoginActivity.this, "The password is wrong. Please enter an other", Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         } catch (CryptorException e) {
                             e.printStackTrace();
                         }
                     }else {
+                        progressLogin.setVisibility(View.GONE);
+                        btnConnect.setEnabled(true);
                         Toast.makeText(LoginActivity.this, "Your username/password is wrong. Please enter an other", Toast.LENGTH_SHORT).show();
                     }
                 }else {
+                    progressLogin.setVisibility(View.GONE);
+                    btnConnect.setEnabled(true);
                     Toast.makeText(LoginActivity.this, "The username isn't already exist. Please enter an other!", Toast.LENGTH_SHORT).show();
                 }
-                //LoginActivity.this.finish();
+
             }
         }
     }
 
 
-
-
-
-
-    private enum DynamoDBManagerType {
-        GET_TABLE_STATUS, CREATE_TABLE, INSERT_USER, USER, CLEAN_UP
-    }
-
     private class DynamoDBManagerTaskResult {
-        private DynamoDBManagerType taskType;
         private String tableStatus;
-
-        public DynamoDBManagerType getTaskType() {
-            return taskType;
-        }
-
-        public void setTaskType(DynamoDBManagerType taskType) {
-            this.taskType = taskType;
-        }
-
         public String getTableStatus() {
             return tableStatus;
         }
-
         public void setTableStatus(String tableStatus) {
             this.tableStatus = tableStatus;
         }

@@ -5,8 +5,6 @@ import android.util.Log;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
@@ -18,8 +16,6 @@ import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 import com.e2e.message.ui.activities.SignUpActivity;
-
-import java.util.ArrayList;
 
 /**
  * Created by hiep on 9/13/16.
@@ -67,10 +63,10 @@ public class DynamoDBManager {
         }
     }
 
-    public static void createMessageDBTable(Activity activity, UserResponse user){
+    public static void createMessageDBTable(Activity activity, String userId) {
         AmazonClientManager clientManager = new AmazonClientManager(activity);
 
-        String tableName = "HL_" + user.getId() + "_Message";
+        String tableName = "HL_" + userId + "_Message";
         AmazonDynamoDBClient ddb = clientManager
                 .ddb();
 
@@ -103,9 +99,7 @@ public class DynamoDBManager {
     public static String getTableStatus(Activity activity, String tableName) {
         AmazonClientManager clientManager = new AmazonClientManager(activity);
         try {
-            AmazonDynamoDBClient ddb = clientManager
-                    .ddb();
-
+            AmazonDynamoDBClient ddb = clientManager.ddb();
 
             DescribeTableRequest request = new DescribeTableRequest()
                     .withTableName(tableName);
@@ -117,11 +111,14 @@ public class DynamoDBManager {
         } catch (ResourceNotFoundException e) {
 
         } catch (AmazonServiceException ex) {
-            SignUpActivity.clientManager
-                    .wipeCredentialsOnAuthError(ex);
+            clientManager.wipeCredentialsOnAuthError(ex);
         }
 
         return "";
+    }
+
+    public static boolean fetchData(Activity activity, String userId) {
+        return false;
     }
 
     public static void insertUsers(UserResponse userResponse) {
@@ -130,8 +127,6 @@ public class DynamoDBManager {
         DynamoDBMapper mapper = new DynamoDBMapper(ddb);
 
         try {
-
-
             Log.d(TAG, "Inserting users");
             mapper.save(userResponse);
             Log.d(TAG, "Users inserted");

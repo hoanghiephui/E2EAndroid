@@ -4,10 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSAbstractCognitoIdentityProvider;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBDocument;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
@@ -23,6 +21,9 @@ public class AmazonClientManager {
 
     private AmazonDynamoDBClient ddb = null;
     private Context context;
+    private static final int CONNECTION_TIMEOUT_MS = 500; // 500ms connection timeout, fail fast
+    private static final int OSG_SOCKET_TIMEOUT_MS = 10 * 1000; // 10 sec socket timeout if no data
+    private static final int OSG_MAX_CONNECTIONS = 512; // Lots of connections since this is for the whole OSG
 
     public AmazonClientManager(Context context) {
         this.context = context;
@@ -46,6 +47,10 @@ public class AmazonClientManager {
     }
 
     private void initClients() {
+        ClientConfiguration config = new ClientConfiguration();
+        config.setConnectionTimeout(CONNECTION_TIMEOUT_MS); // very short timeout
+        config.setSocketTimeout(OSG_SOCKET_TIMEOUT_MS);
+        config.setMaxConnections(OSG_MAX_CONNECTIONS);
         CognitoCachingCredentialsProvider credentials = new CognitoCachingCredentialsProvider(
                 context,
                 IDENTITY_POOL_ID,
@@ -53,6 +58,7 @@ public class AmazonClientManager {
 
         ddb = new AmazonDynamoDBClient(credentials);
         ddb.setRegion(Region.getRegion(Regions.US_EAST_1));
+        ddb.setTimeOffset(config.getConnectionTimeout());
     }
 
     public boolean wipeCredentialsOnAuthError(AmazonServiceException ex) {

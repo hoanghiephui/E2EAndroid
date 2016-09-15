@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.e2e.message.R;
@@ -43,10 +44,13 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     private static final String TAG = SignUpActivity.class.getSimpleName();
     private EditText edtUserName, edtPassword, edtFullName, edtReTypePassword;
     private Button btnSignUp;
+    private ProgressBar progressSign;
 
     String keyQ;
     private byte[] keyK;
     public static AmazonClientManager clientManager = null;
+    private UserResponse user;
+    private String userId;
 
     @Override
     protected int getMainLayout() {
@@ -67,6 +71,7 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         this.edtFullName = (EditText) findViewById(R.id.edtFullName);
         this.edtReTypePassword = (EditText) findViewById(R.id.edtReTypePassword);
         this.btnSignUp = (Button) findViewById(R.id.btnSignUp);
+        this.progressSign = (ProgressBar) findViewById(R.id.progressSign);
         btnSignUp.setOnClickListener(this);
     }
 
@@ -80,120 +85,132 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnSignUp:
-                onSignUp();
+                if (StringUtil.isEmptyString(edtUserName.getText().toString()) ||
+                        StringUtil.isEmptyString(edtFullName.getText().toString()) ||
+                        StringUtil.isEmptyString(edtReTypePassword.getText().toString()) ||
+                        StringUtil.isEmptyString(edtPassword.getText().toString())) {
+                    Toast.makeText(this, "Username or Full name or Password null", Toast.LENGTH_SHORT).show();
+                } else {
+                    onSignUp();
+                }
+
                 break;
         }
     }
 
     private void onSignUp() {
-        UserResponse user = new UserResponse();
-        if (StringUtil.isEmptyString(edtUserName.getText().toString()) ||
-                StringUtil.isEmptyString(edtFullName.getText().toString()) ||
-                StringUtil.isEmptyString(edtReTypePassword.getText().toString()) ||
-                StringUtil.isEmptyString(edtPassword.getText().toString())) {
-            Toast.makeText(this, "Username or Full name or Password null", Toast.LENGTH_SHORT).show();
-        } else {
-            //generate rsa
-            SecurePrefManager.with(this).clear();
-            final KeyPair keyPair = RSA.generate();
-            Crypto.writePrivateKeyToPreferences(this, keyPair);
-            Crypto.writePublicKeyToPreferences(this, keyPair);
-            String privateKeyPref = SecurePrefManager.with(this)
-                    .get(com.e2e.message.data.Constants.RSA_PRIVATE_KEY)
-                    .defaultValue("unknown")
-                    .go();
+        user = new UserResponse();
+        userId = StringUtil.uniqueFromString(edtUserName.getText().toString());
+        btnSignUp.setEnabled(false);
+        progressSign.setVisibility(View.VISIBLE);
+        new DynamoDBManagerTask().execute();
+    }
 
-            String publicKeyPref = SecurePrefManager.with(this)
-                    .get(com.e2e.message.data.Constants.RSA_PUBLIC_KEY)
-                    .defaultValue("unknown")
-                    .go();
+    private void enCryptData() {
+        //Generate RSA
+        SecurePrefManager.with(this).clear();
+        final KeyPair keyPair = RSA.generate();
+        Crypto.writePrivateKeyToPreferences(this, keyPair);
+        Crypto.writePublicKeyToPreferences(this, keyPair);
+        String privateKeyPref = SecurePrefManager.with(this)
+                .get(Constants.RSA_PRIVATE_KEY)
+                .defaultValue("unknown")
+                .go();
 
-            Log.d(TAG, "onSignUp: public key: " + Crypto.stripPublicKeyHeaders(publicKeyPref) + " privateKey: " + Crypto.stripPublicKeyHeaders(privateKeyPref));
+        String publicKeyPref = SecurePrefManager.with(this)
+                .get(Constants.RSA_PUBLIC_KEY)
+                .defaultValue("unknown")
+                .go();
 
-            JNCryptor cryptor = new AES256JNCryptor();
+        Log.d(TAG, "onSignUp: public key: " + Crypto.stripPublicKeyHeaders(publicKeyPref) + " privateKey: " + Crypto.stripPublicKeyHeaders(privateKeyPref));
 
-            try {
-                keyK = cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes(UTF_8)).getEncoded();
+        JNCryptor cryptor = new AES256JNCryptor();
 
-                keyQ = new String(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), UTF_8);
+        try {
+            keyK = cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.generateTagPrefix(8).getBytes(UTF_8)).getEncoded();
 
-
-
-
-                byte[] keyEncryptedK = cryptor.encryptData(keyK , keyQ.toCharArray());
-
-                String keyKBase64 = new String(this.keyK, UTF_8);
+            keyQ = new String(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), UTF_8);
 
 
+            byte[] keyEncryptedK = cryptor.encryptData(keyK, keyQ.toCharArray());
 
-                //luu keyQ
-
-                File file = File.createTempFile("keyQ", ".key");
-                KeyStoreUtils.saveKey(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()), file);
+            String keyKBase64 = new String(this.keyK, UTF_8);
 
 
-                SecretKey persistedKey = loadKey(file);
-                Log.d(TAG, "onSignUp: keyK " + keyKBase64);
-                Log.d(TAG, "onSignUp: keyQ :" + keyQ);
-                Log.d(TAG, "onSignUp: keyQ File: " + new String(persistedKey.getEncoded(), UTF_8));
-                Log.d(TAG, "onSignUp: keyEnCry :" + Base64.encodeToString(keyEncryptedK, Base64.NO_PADDING));
-                //ma hoa user
-                user.setId(StringUtil.uniqueFromString(edtUserName.getText().toString()));
-                user.setUserName(cryptor.encryptData(edtUserName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()));
-                user.setFullName(cryptor.encryptData(edtFullName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()));
-                user.setKeyK(keyEncryptedK);
-                user.setPrivateKey(cryptor.encryptData(privateKeyPref.getBytes(UTF_8), keyKBase64.toCharArray()));
-                user.setPublicKey(cryptor.encryptData(publicKeyPref.getBytes(UTF_8), keyKBase64.toCharArray()));
-                new DynamoDBManagerTask().execute(user);
-                Log.d(TAG, "onSignUp: userName: " + new String(cryptor.encryptData(edtUserName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()), UTF_8));
-                byte [] userName = cryptor.decryptData(user.getUserName(), keyKBase64.toCharArray());
-                Log.d(TAG, "onSignUp: userUn: " + new String(userName, UTF_8));
-            } catch (CryptorException e) {
-                // Something went wrong
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (DecoderException e) {
-                e.printStackTrace();
-            }
+            //luu keyQ
+
+            File file = File.createTempFile("keyQ", ".key");
+            KeyStoreUtils.saveKey(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()), file);
+
+
+            SecretKey persistedKey = loadKey(file);
+            Log.d(TAG, "onSignUp: keyK " + keyKBase64);
+            Log.d(TAG, "onSignUp: keyQ :" + keyQ);
+            Log.d(TAG, "onSignUp: keyQ File: " + new String(persistedKey.getEncoded(), UTF_8));
+            Log.d(TAG, "onSignUp: keyEnCry :" + Base64.encodeToString(keyEncryptedK, Base64.NO_PADDING));
+            //ma hoa user
+            user.setId(userId);
+            user.setUserName(cryptor.encryptData(edtUserName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()));
+            user.setFullName(cryptor.encryptData(edtFullName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()));
+            user.setKeyK(keyEncryptedK);
+            user.setPrivateKey(cryptor.encryptData(privateKeyPref.getBytes(UTF_8), keyKBase64.toCharArray()));
+            user.setPublicKey(cryptor.encryptData(publicKeyPref.getBytes(UTF_8), keyKBase64.toCharArray()));
+
+            Log.d(TAG, "onSignUp: userName: " + new String(cryptor.encryptData(edtUserName.getText().toString().getBytes(UTF_8), keyKBase64.toCharArray()), UTF_8));
+            byte[] userName = cryptor.decryptData(user.getUserName(), keyKBase64.toCharArray());
+            Log.d(TAG, "onSignUp: userUn: " + new String(userName, UTF_8));
+        } catch (CryptorException e) {
+            // Something went wrong
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DecoderException e) {
+            e.printStackTrace();
         }
     }
 
 
-
-    private class DynamoDBManagerTask extends AsyncTask<UserResponse, Void, DynamoDBManagerTaskResult>{
-
-
+    private class DynamoDBManagerTask extends AsyncTask<Void, Boolean, DynamoDBManagerTaskResult> {
 
 
         @Override
-        protected DynamoDBManagerTaskResult doInBackground(UserResponse... userResponses) {
+        protected DynamoDBManagerTaskResult doInBackground(Void... voids) {
             String tableStatus = DynamoDBManager.getTableStatus(SignUpActivity.this, Constants.HL_USER_TABLE_NAME);
 
             DynamoDBManagerTaskResult result = new DynamoDBManagerTaskResult();
-            result.setTableStatus(tableStatus);
+
             if (tableStatus.equalsIgnoreCase(ACTIVE)) {
-                DynamoDBManager.insertUsers(userResponses[0]);
-                String tabbleContact = DynamoDBManager.getTableStatus(SignUpActivity.this, "HL_" + userResponses[0].getId() + "_Contact");
-                if (!tabbleContact.equalsIgnoreCase("ACTIVE")){
-                    DynamoDBManager.createContactDBTable(SignUpActivity.this, userResponses[0]);
+                if (DynamoDBManager.getUserById(SignUpActivity.this, userId) == null) {
+                    enCryptData();
+                    if (user != null) {
+                        DynamoDBManager.insertUsers(user);
+                        String tabbleContact = DynamoDBManager.getTableStatus(SignUpActivity.this, "HL_" + user.getId() + "_Contact");
+                        if (!tabbleContact.equalsIgnoreCase("ACTIVE")) {
+                            DynamoDBManager.createContactDBTable(SignUpActivity.this, user);
+                        }
+                        DynamoDBManager.createMessageDBTable(SignUpActivity.this, userId);
+                    }
+
+                } else {
+                    result.setUserStatus(true);
                 }
-                DynamoDBManager.createMessageDBTable(SignUpActivity.this, userResponses[0]);
+
             }
 
             return result;
         }
 
+
         @Override
         protected void onPostExecute(DynamoDBManagerTaskResult result) {
-            if (!result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
-
-                Toast.makeText(
-                        SignUpActivity.this,
-                        "The test table is not ready yet.\nTable Status: "
-                                + result.getTableStatus(), Toast.LENGTH_LONG)
-                        .show();
-            } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
+            if (result.isUserStatus()) {
+                Toast.makeText(SignUpActivity.this,
+                        "The username was already exist. Please enter an other", Toast.LENGTH_LONG).show();
+                edtUserName.setCursorVisible(true);
+                edtUserName.setFocusable(true);
+                btnSignUp.setEnabled(true);
+                progressSign.setVisibility(View.GONE);
+            } else if (!result.isUserStatus()) {
                 Toast.makeText(SignUpActivity.this,
                         "Users inserted successfully!", Toast.LENGTH_SHORT).show();
                 SignUpActivity.this.finish();
@@ -207,14 +224,14 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
 
     private class DynamoDBManagerTaskResult {
 
-        private String tableStatus;
+        private boolean userStatus;
 
-        public String getTableStatus() {
-            return tableStatus;
+        public boolean isUserStatus() {
+            return userStatus;
         }
 
-        public void setTableStatus(String tableStatus) {
-            this.tableStatus = tableStatus;
+        public void setUserStatus(boolean userStatus) {
+            this.userStatus = userStatus;
         }
     }
 }
