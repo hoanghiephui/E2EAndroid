@@ -4,3 +4,12 @@ iOS/HeilambClient.xcodeproj/xcuserdata
 OSX/Pods
 /OSX/HeilambOSX.xcworkspace
 /OSX/HeilambOSX.xcodeproj/xcuserdata
+Android/.gitignore
+Android/.idea/compiler.xml
+Android/.idea/encodings.xml
+Android/.idea/gradle.xml
+Android/.idea/misc.xml
+Android/.idea/modules.xml
+Android/.idea/runConfigurations.xml
+Android/.idea/vcs.xml
+Android/.idea/copyright/profiles_settings.xml

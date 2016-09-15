@@ -11,7 +11,7 @@ import Hashids_Swift
 
 public class HLUltils {
     
-    public static let kSalt = "HL-SALT"
+    public static let kSalt = "HL_SALTA"
     public static let kRSATag = "com.yusuf.e2e"
     
     class var SaltData : NSData? {

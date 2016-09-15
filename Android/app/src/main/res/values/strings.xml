@@ -6,4 +6,6 @@
     <string name="password">Password</string>
     <string name="re_type_password">Re-type Password</string>
     <string name="signup">Signup</string>
+    <string name="login">Login</string>
+    <string name="logout">Sign Out</string>
 </resources>

@@ -111,6 +111,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         new DynamoDBManagerTask().execute();
         progressLogin.setVisibility(View.VISIBLE);
         btnConnect.setEnabled(false);
+
     }
 
     private class DynamoDBManagerTask extends AsyncTask<Void, Void, DynamoDBManagerTaskResult> {
@@ -143,18 +144,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     byte[] encryptedKeyK = userInfo.getKeyK();
                     if (encryptedKeyK != null) {
                         try {
-                            keyQ = new String(cryptor.keyForPassword(edtPassword.getText().toString().toCharArray(), HLUltils.getkSalt()).getEncoded(), UTF_8);
+                            //Check if any key exists
+                            /*if (Hawk.contains(userId)){
+                                keyQ = Hawk.get(userId);
+                                Log.d (TAG, "login: getKeyQ: " + keyQ);
+                            }*/
 
+                            keyQ = Base64.encodeToString (cryptor.keyForPassword (edtPassword.getText ().toString ().toCharArray (), HLUltils.getkSalt ()).getEncoded (), Base64.NO_WRAP);
 
                             byte[] keyDecrypt = cryptor.decryptData(encryptedKeyK, keyQ.toCharArray());
-                            byte[] userName = cryptor.decryptData(userInfo.getUserName(), new String(keyDecrypt, UTF_8).toCharArray());
-                            byte[] publicKey = cryptor.decryptData(userInfo.getPrivateKey(), new String(keyDecrypt, UTF_8).toCharArray());
-                            byte[] privateKey = cryptor.decryptData(userInfo.getPrivateKey(), new String(keyDecrypt, UTF_8).toCharArray());
-                            byte[] fullName = cryptor.decryptData(userInfo.getFullName(), new String(keyDecrypt, UTF_8).toCharArray());
+                            byte[] userName = cryptor.decryptData (userInfo.getUserName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                            byte[] publicKey = cryptor.decryptData (userInfo.getPrivateKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                            byte[] privateKey = cryptor.decryptData (userInfo.getPrivateKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                            byte[] fullName = cryptor.decryptData (userInfo.getFullName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
 
                             Log.d(TAG, "onPostExecute: keyQ: " + keyQ);
-                            Log.d(TAG, "onPostExecute: keyK: " + Base64.encodeToString(encryptedKeyK, Base64.NO_PADDING));
-                            Log.d(TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString(keyDecrypt, Base64.NO_PADDING));
+                            Log.d (TAG, "onPostExecute: keyK: " + Base64.encodeToString (encryptedKeyK, Base64.NO_WRAP));
+                            Log.d (TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString (keyDecrypt, Base64.NO_WRAP));
                             Log.d(TAG, "onPostExecute: userName: " + new String(userInfo.getUserName(), UTF_8) + "    " + new String(userName, UTF_8));
                             Log.d(TAG, "onPostExecute: publicKey: " + new String(publicKey, UTF_8));
 

@@ -2,6 +2,7 @@ package com.e2e.message;
 
 import android.app.Application;
 
+import com.orhanobut.hawk.Hawk;
 import com.prashantsolanki.secureprefmanager.SecurePrefManagerInit;
 
 /**
@@ -16,5 +17,6 @@ public class AppController extends Application{
         new SecurePrefManagerInit.Initializer(getApplicationContext())
                 .useEncryption(true)
                 .initialize();
+        Hawk.init (getApplicationContext ()).build ();
     }
 }

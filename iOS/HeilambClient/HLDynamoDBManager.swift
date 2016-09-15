@@ -284,6 +284,7 @@ public class HLDynamoDBManager {
                         let keyQ = RNCryptor.FormatV3.keyForPassword(password, salt: salt!)
                         if  let encryptedKeyK = rawModel.keyEncryptedK {
                             do {
+                                let k = keyQ.stringBase64;
                                 let _ = try RNCryptor.decryptData(encryptedKeyK, password: keyQ.stringBase64!)
                                 let keychain = AWSUICKeyChainStore(service: kKeychainDB)
                                 keychain.setData(keyQ, forKey: dyUser.userId!)
