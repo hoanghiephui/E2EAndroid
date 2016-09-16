@@ -7,7 +7,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 /**
  * Created by hiep on 9/14/16.
  */
-@DynamoDBTable(tableName = Constants.HL_USER_TABLE_NAME)
+@DynamoDBTable (tableName = "")
 public class ContactResponse{
 
 

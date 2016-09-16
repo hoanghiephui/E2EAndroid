@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
@@ -33,19 +34,19 @@ public class DynamoDBManager {
         return false;
     }
 
-    public static void createContactDBTable(Activity activity, UserResponse user){
+    public static void createContactDBTable (Activity activity, String userId) {
         AmazonClientManager clientManager = new AmazonClientManager(activity);
 
-        String tableName = "HL_" + user.getId() + "_Contact";
+        String tableName = "HL_" + userId + "_Contact";
         AmazonDynamoDBClient ddb = clientManager
                 .ddb();
 
         KeySchemaElement kse = new KeySchemaElement().withAttributeName(
                 "v_ctId").withKeyType(KeyType.HASH);
         AttributeDefinition ad = new AttributeDefinition().withAttributeName(
-                "v_ctId").withAttributeType(ScalarAttributeType.N);
+                "v_ctId").withAttributeType (ScalarAttributeType.S);
         ProvisionedThroughput pt = new ProvisionedThroughput()
-                .withReadCapacityUnits(2L).withWriteCapacityUnits(2L);
+                .withReadCapacityUnits (10L).withWriteCapacityUnits (5L);
 
         CreateTableRequest request = new CreateTableRequest()
                 .withTableName(tableName)
@@ -73,9 +74,9 @@ public class DynamoDBManager {
         KeySchemaElement kse = new KeySchemaElement().withAttributeName(
                 "v_id").withKeyType(KeyType.HASH);
         AttributeDefinition ad = new AttributeDefinition().withAttributeName(
-                "v_id").withAttributeType(ScalarAttributeType.N);
+                "v_id").withAttributeType (ScalarAttributeType.S);
         ProvisionedThroughput pt = new ProvisionedThroughput()
-                .withReadCapacityUnits(2L).withWriteCapacityUnits(2L);
+                .withReadCapacityUnits (10L).withWriteCapacityUnits (5L);
 
         CreateTableRequest request = new CreateTableRequest()
                 .withTableName(tableName)
@@ -151,5 +152,27 @@ public class DynamoDBManager {
         }
 
         return null;
+    }
+
+    //insert data the table contact
+    public static boolean insertContact (ContactResponse contactResponse, String tableName, Activity activity) {
+        AmazonClientManager clientManager = new AmazonClientManager (activity);
+        boolean done = false;
+        AmazonDynamoDBClient ddb = clientManager
+                .ddb ();
+        DynamoDBMapper mapper = new DynamoDBMapper (ddb, new DynamoDBMapperConfig.Builder ().withTableNameOverride (DynamoDBMapperConfig.TableNameOverride.withTableNameReplacement (tableName))
+                .build ());
+
+        try {
+            Log.d (TAG, "Inserting users");
+            mapper.save (contactResponse);
+            Log.d (TAG, "Users inserted");
+            done = true;
+        } catch (AmazonServiceException ex) {
+            Log.e (TAG, "Error inserting users");
+            clientManager
+                    .wipeCredentialsOnAuthError (ex);
+        }
+        return done;
     }
 }

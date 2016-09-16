@@ -112,6 +112,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         progressLogin.setVisibility(View.VISIBLE);
         btnConnect.setEnabled(false);
 
+
     }
 
     private class DynamoDBManagerTask extends AsyncTask<Void, Void, DynamoDBManagerTaskResult> {
@@ -154,7 +155,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
                             byte[] keyDecrypt = cryptor.decryptData(encryptedKeyK, keyQ.toCharArray());
                             byte[] userName = cryptor.decryptData (userInfo.getUserName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
-                            byte[] publicKey = cryptor.decryptData (userInfo.getPrivateKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                            byte[] publicKey = cryptor.decryptData (userInfo.getPublicKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
                             byte[] privateKey = cryptor.decryptData (userInfo.getPrivateKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
                             byte[] fullName = cryptor.decryptData (userInfo.getFullName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
 
@@ -164,7 +165,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             Log.d(TAG, "onPostExecute: userName: " + new String(userInfo.getUserName(), UTF_8) + "    " + new String(userName, UTF_8));
                             Log.d(TAG, "onPostExecute: publicKey: " + new String(publicKey, UTF_8));
 
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            Intent intent = new Intent (LoginActivity.this, MainActivity.class);
+                            Bundle bundle = new Bundle ();
+                            bundle.putString ("id", userId);
+                            intent.putExtras (bundle);
+                            startActivity (intent);
                             LoginActivity.this.finish();
                         } catch (InvalidHMACException e) {
                             progressLogin.setVisibility(View.GONE);

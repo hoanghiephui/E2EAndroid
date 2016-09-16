@@ -198,7 +198,7 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                         DynamoDBManager.insertUsers(user);
                         String tabbleContact = DynamoDBManager.getTableStatus(SignUpActivity.this, "HL_" + user.getId() + "_Contact");
                         if (!tabbleContact.equalsIgnoreCase("ACTIVE")) {
-                            DynamoDBManager.createContactDBTable(SignUpActivity.this, user);
+                            DynamoDBManager.createContactDBTable (SignUpActivity.this, userId);
                         }
                         DynamoDBManager.createMessageDBTable(SignUpActivity.this, userId);
                     }
