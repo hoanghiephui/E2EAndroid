@@ -41,6 +41,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private String keyQ;
     private String userId;
     private UserResponse userInfo = null;
+    private JNCryptor cryptor;
 
     @Override
     protected int getMainLayout() {
@@ -55,6 +56,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     protected void initComponents(Bundle savedInstanceState) {
+        cryptor = new AES256JNCryptor ();
         this.edtUserName = (EditText) findViewById(R.id.edtUserName);
         this.edtPassword = (EditText) findViewById(R.id.edtPassword);
         this.btnConnect = (Button) findViewById(R.id.btnConnect);
@@ -112,7 +114,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         progressLogin.setVisibility(View.VISIBLE);
         btnConnect.setEnabled(false);
 
-
     }
 
     private class DynamoDBManagerTask extends AsyncTask<Void, Void, DynamoDBManagerTaskResult> {
@@ -126,7 +127,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
             if (tableStatus.equalsIgnoreCase(ACTIVE)) {
                 userInfo = DynamoDBManager.getUserById(LoginActivity.this, userId);
+                if (userInfo != null) {
+                    decryptData (result);
+                }
             }
+
             return result;
         }
 
@@ -140,56 +145,66 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 btnConnect.setEnabled(true);
             } else if (result.getTableStatus().equalsIgnoreCase("ACTIVE")) {
 
-                if (userInfo != null){
-                    JNCryptor cryptor = new AES256JNCryptor();
-                    byte[] encryptedKeyK = userInfo.getKeyK();
-                    if (encryptedKeyK != null) {
-                        try {
-                            //Check if any key exists
-                            /*if (Hawk.contains(userId)){
-                                keyQ = Hawk.get(userId);
-                                Log.d (TAG, "login: getKeyQ: " + keyQ);
-                            }*/
-
-                            keyQ = Base64.encodeToString (cryptor.keyForPassword (edtPassword.getText ().toString ().toCharArray (), HLUltils.getkSalt ()).getEncoded (), Base64.NO_WRAP);
-
-                            byte[] keyDecrypt = cryptor.decryptData(encryptedKeyK, keyQ.toCharArray());
-                            byte[] userName = cryptor.decryptData (userInfo.getUserName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
-                            byte[] publicKey = cryptor.decryptData (userInfo.getPublicKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
-                            byte[] privateKey = cryptor.decryptData (userInfo.getPrivateKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
-                            byte[] fullName = cryptor.decryptData (userInfo.getFullName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
-
-                            Log.d(TAG, "onPostExecute: keyQ: " + keyQ);
-                            Log.d (TAG, "onPostExecute: keyK: " + Base64.encodeToString (encryptedKeyK, Base64.NO_WRAP));
-                            Log.d (TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString (keyDecrypt, Base64.NO_WRAP));
-                            Log.d(TAG, "onPostExecute: userName: " + new String(userInfo.getUserName(), UTF_8) + "    " + new String(userName, UTF_8));
-                            Log.d(TAG, "onPostExecute: publicKey: " + new String(publicKey, UTF_8));
-
-                            Intent intent = new Intent (LoginActivity.this, MainActivity.class);
-                            Bundle bundle = new Bundle ();
-                            bundle.putString ("id", userId);
-                            intent.putExtras (bundle);
-                            startActivity (intent);
-                            LoginActivity.this.finish();
-                        } catch (InvalidHMACException e) {
-                            progressLogin.setVisibility(View.GONE);
-                            btnConnect.setEnabled(true);
-                            Toast.makeText(LoginActivity.this, "The password is wrong. Please enter an other", Toast.LENGTH_SHORT).show();
-                            e.printStackTrace();
-                        } catch (CryptorException e) {
-                            e.printStackTrace();
-                        }
-                    }else {
+                if (userInfo == null) {
+                    progressLogin.setVisibility (View.GONE);
+                    btnConnect.setEnabled (true);
+                    Toast.makeText (LoginActivity.this, "The username isn't already exist. Please enter an other!", Toast.LENGTH_SHORT).show ();
+                } else {
+                    if (userInfo.getKeyK () == null) {
                         progressLogin.setVisibility(View.GONE);
                         btnConnect.setEnabled(true);
                         Toast.makeText(LoginActivity.this, "Your username/password is wrong. Please enter an other", Toast.LENGTH_SHORT).show();
                     }
-                }else {
-                    progressLogin.setVisibility(View.GONE);
-                    btnConnect.setEnabled(true);
-                    Toast.makeText(LoginActivity.this, "The username isn't already exist. Please enter an other!", Toast.LENGTH_SHORT).show();
+                    if (!result.isInvalidHMAC ()) {
+                        progressLogin.setVisibility (View.GONE);
+                        btnConnect.setEnabled (true);
+                        Toast.makeText (LoginActivity.this, "The password is wrong. Please enter an other", Toast.LENGTH_SHORT).show ();
+                    } else {
+                        Intent intent = new Intent (LoginActivity.this, MainActivity.class);
+                        Bundle bundle = new Bundle ();
+                        bundle.putString ("id", userId);
+                        intent.putExtras (bundle);
+                        startActivity (intent);
+                        LoginActivity.this.finish ();
+                    }
                 }
 
+
+            }
+        }
+    }
+
+    private void decryptData (DynamoDBManagerTaskResult result) {
+        byte[] encryptedKeyK = userInfo.getKeyK ();
+        if (encryptedKeyK != null) {
+            try {
+                Log.d (TAG, "decryptData: ");
+                //Check if any key exists
+                    /*if (Hawk.contains(userId)){
+                        keyQ = Hawk.get(userId);
+                        Log.d (TAG, "login: getKeyQ: " + keyQ);
+                    }*/
+
+                keyQ = Base64.encodeToString (cryptor.keyForPassword (edtPassword.getText ().toString ().toCharArray (), HLUltils.getkSalt ()).getEncoded (), Base64.NO_WRAP);
+
+                byte[] keyDecrypt = cryptor.decryptData (encryptedKeyK, keyQ.toCharArray ());
+                byte[] userName = cryptor.decryptData (userInfo.getUserName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                byte[] publicKey = cryptor.decryptData (userInfo.getPublicKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                byte[] privateKey = cryptor.decryptData (userInfo.getPrivateKey (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+                byte[] fullName = cryptor.decryptData (userInfo.getFullName (), Base64.encodeToString (keyDecrypt, Base64.NO_WRAP).toCharArray ());
+
+                Log.d (TAG, "onPostExecute: keyQ: " + keyQ);
+                Log.d (TAG, "onPostExecute: keyK: " + Base64.encodeToString (encryptedKeyK, Base64.NO_WRAP));
+                Log.d (TAG, "onPostExecute: keyDecrypt: " + Base64.encodeToString (keyDecrypt, Base64.NO_WRAP));
+                Log.d (TAG, "onPostExecute: userName: " + new String (userInfo.getUserName (), UTF_8) + "    " + new String (userName, UTF_8));
+                Log.d (TAG, "onPostExecute: publicKey: " + new String (publicKey, UTF_8));
+
+                result.setInvalidHMAC (true);
+            } catch (InvalidHMACException e) {
+                result.setInvalidHMAC (false);
+                e.printStackTrace ();
+            } catch (CryptorException e) {
+                e.printStackTrace ();
             }
         }
     }
@@ -197,11 +212,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     private class DynamoDBManagerTaskResult {
         private String tableStatus;
+        private boolean invalidHMAC;
         public String getTableStatus() {
             return tableStatus;
         }
         public void setTableStatus(String tableStatus) {
             this.tableStatus = tableStatus;
+        }
+
+        public boolean isInvalidHMAC () {
+            return invalidHMAC;
+        }
+
+        public void setInvalidHMAC (boolean invalidHMAC) {
+            this.invalidHMAC = invalidHMAC;
         }
     }
 }
